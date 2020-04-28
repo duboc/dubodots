@@ -1,0 +1,48 @@
+set nocompatible
+filetype plugin on
+set term=xterm-256color
+set number  " Show line numbers
+set linebreak   " Break lines at word (requires Wrap lines)
+set showbreak=+++   " Wrap-broken line prefix
+set showmatch   " Highlight matching brace
+set visualbell  " Use visual bell (no beeping)
+
+set hlsearch   " Highlight all search results
+set smartcase  " Enable smart-case search
+set ignorecase " Always case-insensitive
+set incsearch  " Searches for strings incrementally
+
+set autoindent    " Auto-indent new lines
+set expandtab " Use spaces instead of tabs
+set shiftwidth=4  " Number of auto-indent spaces
+set smartindent   " Enable smart-indent
+set smarttab  " Enable smart-tabs
+set softtabstop=4 " Number of spaces per Tab
+
+set ruler    " Show row and column ruler information
+
+set undolevels=1000 " Number of undo levels
+set backspace=2
+set backspace=indent,eol,start  " Backspace behaviour
+
+set cursorline
+set mouse-=a
+
+" Colour the 73rd column so that we don’t type over our limit
+"set colorcolumn=73
+"set colorcolumn+=51
+
+" Force the cursor onto a new line after 80 characters
+set textwidth=80
+" However, in Git commit messages, let’s make it 72 characters
+autocmd FileType gitcommit set textwidth=72
+" Colour the 81st (or 73rd) column so that we don’t type over our limit
+set colorcolumn=+1
+" In Git commit messages, also colour the 51st column (for titles)
+autocmd FileType gitcommit set colorcolumn+=51
+" Bubble single lines
+nmap <C-Up> ddkP
+nmap <C-Down> ddp
+" Bubble multiple lines
+vmap <C-Up> xkP`[V`]
+vmap <C-Down> xp`[V`]
