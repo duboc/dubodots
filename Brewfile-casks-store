@@ -1,28 +1,17 @@
 cask_args appdir: "/Applications"
 
-brew "mas"
 
 cask "appcleaner"
 cask "betterzip"
 cask "batchmod"
 cask "docker"
-cask "evernote"
-cask "firefox"
 cask "font-firacode-nerd-font"
 cask "font-ibm-plex"
-cask "franz"
 cask "google-backup-and-sync"
-cask "google-chrome"
 cask "go2shell"
 cask "grandperspective"
-cask "handbrake"
 cask "iterm2"
-cask "powershell"
-cask "itsycal"
-cask "joplin"
-cask "kdiff3"
 cask "minikube"
-cask "muzzle"
 cask "nightowl"
 cask "open-in-code"
 cask "qlcolorcode"
@@ -37,12 +26,3 @@ cask "unshaky"
 cask "vanilla"
 cask "vlc"
 cask "visual-studio-code"
-cask "horndis"
-
-mas "Amphetamine", id: 937984704
-mas "Disk Speed Test", id: 425264550
-mas "Evernote", id: 406056744
-mas "ForkLift", id: 412448059
-mas "Pixelmator", id: 407963104
-mas "Slack", id: 803453959
-mas "TweetDeck", id: 485812721
