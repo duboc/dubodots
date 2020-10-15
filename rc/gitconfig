@@ -1,10 +1,6 @@
 [user]
-  name = Carlos de Paula
-  email = me@carlosedp.com
-
-[github]
-  user = carlosedp
-  token = 25e87ba20baee941e5b10d78b4ec11cd
+  name = Anderson Duboc 
+  email = aduboc@vmware.com
 
 [color]
     ui = auto
