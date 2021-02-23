@@ -87,6 +87,3 @@ The dotfiles is structured as:
 * `./shellconfig/iterm_shell_integration.*` - These are the scripts loaded for iTerm2 integration
 * `./shellconfig/kubernetes.sh` - Kubernetes functions and aliases. Loaded only when `kubectl` is present.
 
-### Symbolic links
-
-* 
