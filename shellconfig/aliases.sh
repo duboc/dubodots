@@ -57,8 +57,6 @@ alias gt='git log --tags -10 --simplify-by-decoration  --reverse --date=format:"
 alias ansible-syntax='ansible-playbook --syntax-check -i "127.0.0.1,"'
 alias diskstat='sudo iostat -d -x -m -c -t 2'
 
-alias elasticindex='watch -n 5 "curl -s \"http://elasticsearch.internal.carlosedp.com/_cat/nodes?v&s=name\"; echo \"\n\"; curl -s \"http://elasticsearch.internal.carlosedp.com/_cat/indices?v&s=index:desc\"|head -30"'
-
 alias zshupd='$HOME/.dotfiles/setup_zsh.sh'
 alias dis='docker images --format "{{.Size}}\t{{.Repository}}:{{.Tag}}\t{{.ID}}" | sort -h'
 alias fl='footloose'

@@ -33,7 +33,7 @@ fi
 
 echo "Get dotfiles"
 if [[ ! -d "$DOTFILES" ]]; then
-    git clone https://github.com/carlosedp/dotfiles.git $DOTFILES
+    git clone https://github.com/duboc/dubodots.git $DOTFILES
 else
     echo "You already have the dotfiles, updating..."
     pushd $DOTFILES; git pull; popd

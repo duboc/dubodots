@@ -150,7 +150,7 @@
 
 [sendemail]
   ; setup for using git send-email; prompts for password
-  smtpuser = carlosedp@gmail.com
+  smtpuser = andersonduboc@gmail.com
   smtpserver = smtp.googlemail.com
   smtpencryption = tls
   smtpserverport = 587
