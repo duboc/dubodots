@@ -122,8 +122,7 @@ for t in "${themes[@]}"
 done
 
 # Add plugins to the array below
-plugins=("https://github.com/carlosedp/zsh-iterm-touchbar" \
-         "https://github.com/TamCore/autoupdate-oh-my-zsh-plugins" \
+plugins=("https://github.com/TamCore/autoupdate-oh-my-zsh-plugins" \
          "https://github.com/zsh-users/zsh-autosuggestions" \
          "https://github.com/zdharma/fast-syntax-highlighting" \
          "https://github.com/zsh-users/zsh-completions" \
