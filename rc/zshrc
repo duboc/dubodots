@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 ###
 # Do not add configuration for things that are common to both bash and zsh
 ###
@@ -29,7 +36,7 @@ COMPLETION_WAITING_DOTS="true"
 
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Syntax highlight should be loaded before history-substring-search
-plugins=(git osx colorize python brew extract history-substring-search autojump sudo vscode zsh-iterm-touchbar docker tmux golang fast-syntax-highlighting history-substring-search zsh-autosuggestions systemd fzf dirhistory history common-aliases)
+plugins=(git osx colorize python brew extract history-substring-search autojump sudo vscode docker tmux golang fast-syntax-highlighting history-substring-search zsh-autosuggestions systemd fzf dirhistory history common-aliases)
 
 source $ZSH/oh-my-zsh.sh
 
