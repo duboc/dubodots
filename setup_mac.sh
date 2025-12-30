@@ -8,6 +8,11 @@ echo "======================================================="
 echo ""
 echo "Testing if you have XCode or Developer tools already installed"
 echo ""
+
+# Keep-alive: update existing `sudo` time stamp until finished
+sudo -v
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+echo ""
 # Test for XCode install
 if [[ ! `which gcc` ]]; then
     echo "Xcode/Dev Tools not installed. Installing..."
@@ -24,7 +29,7 @@ echo ""
 if [[ ! `which brew` ]]; then
     echo "Homebrew not installed, installing..."
     echo ""
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
     echo "Homebrew is installed, will update"
     echo ""
@@ -71,3 +76,8 @@ fi
 #sudo sed -i "%admin    ALL = (ALL) NOPASSWD:ALL"
 
 echo "Setup finished!"
+echo ""
+echo "NEXT STEPS:"
+echo "1. Run 'gcloud auth login' to set up Google Cloud SDK."
+echo "2. Run 'gcloud auth application-default login' if you need ADC."
+echo "3. Restart your terminal to apply Zsh changes."

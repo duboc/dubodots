@@ -34,9 +34,17 @@ git clone https://github.com/duboc/dubodots $HOME/.dotfiles
 pushd $HOME/.dotfiles
 
 # Run setup_mac.sh
-./setup_linux.sh
+./setup_mac.sh
 popd
 ```
+
+Now close the current terminal and reopen.
+
+### Corporate / Proxy Environments
+
+If you are behind a corporate proxy, ensure your `http_proxy` and `https_proxy` environment variables are set before running the setup scripts. You might also need to configure `npm`, `git`, and `curl` to use custom CA certificates if required by your organization.
+
+### Linux
 
 Now close the current terminal and reopen.
 

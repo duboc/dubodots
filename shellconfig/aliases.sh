@@ -58,7 +58,7 @@ alias ansible-syntax='ansible-playbook --syntax-check -i "127.0.0.1,"'
 alias diskstat='sudo iostat -d -x -m -c -t 2'
 
 alias zshupd='$HOME/.dotfiles/setup_zsh.sh'
-alias dis='docker images --format "{{.Size}}\t{{.Repository}}:{{.Tag}}\t{{.ID}}" | sort -h'
+# alias dis='docker images --format "{{.Size}}\t{{.Repository}}:{{.Tag}}\t{{.ID}}" | sort -h' # Removed
 alias fl='footloose'
 alias tm='tmux new -A -s mySession'
 alias tma='tmate new -A -s mySession'
@@ -69,3 +69,8 @@ alias tree='tree -I "out|node_modules|vendor|build"'
 
 alias sniffapp="lsof -i 4tcp"
 alias ping='prettyping'
+
+# Google Cloud Aliases
+alias g='gcloud'
+alias gauth='gcloud auth login'
+alias gconfig='gcloud config set project'

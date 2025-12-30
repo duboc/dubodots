@@ -46,3 +46,6 @@ export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
 if [ -f /usr/libexec/java_home ]; then
     export JAVA_HOME=`/usr/libexec/java_home`
 fi
+
+# Google Cloud / Kubernetes
+export USE_GKE_GCLOUD_AUTH_PLUGIN=True

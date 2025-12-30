@@ -58,7 +58,7 @@ if [[ ! -d "$DOTFILES" ]]; then
     git clone https://github.com/duboc/dubodots.git $DOTFILES
 else
     echo "You already have the dotfiles, updating..."
-    pushd $DOTFILES; git pull; popd
+    pushd $DOTFILES; git pull --rebase --autostash; popd
 fi
 
 echo ""
@@ -67,7 +67,7 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
 else
     echo "You already have the oh-my-zsh, updating..."
-    pushd $HOME/.oh-my-zsh; git pull; popd
+    pushd $HOME/.oh-my-zsh; git pull --rebase --autostash; popd
 fi
 
 echo ""
@@ -140,7 +140,7 @@ for p in "${plugins[@]}"
         git clone $p "$ZSH_CUSTOM/plugins/$plugin_name"
     else
         echo "You already have $plugin_name, updating..."
-        pushd $ZSH_CUSTOM/plugins/$plugin_name; git pull; popd
+        pushd $ZSH_CUSTOM/plugins/$plugin_name; git pull --rebase --autostash; popd
     fi
 done
 
@@ -186,3 +186,12 @@ echo ""
 echo "Clean completion cache"
 \rm -rf $home/.zcompdump*
 
+# Cloud SDK Completion (if installed via Brew/Cask)
+if [ -f "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc" ]; then
+    source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
+fi
+if [ -f "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc" ]; then
+    source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
+fi
+
+echo "Zsh setup finished."
