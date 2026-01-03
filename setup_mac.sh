@@ -1,7 +1,8 @@
 #!/bin/bash
 
-DOTFILES=$HOME/.dotfiles
-cd $HOME
+# Determine script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$HOME"
 
 echo "Don't forget to install XCode or Developer tools"
 echo "======================================================="
@@ -41,31 +42,28 @@ echo "Install brews"
 echo "==================================="
 echo ""
 # Command line apps
-brew bundle install --file $DOTFILES/Brewfile
+brew bundle install --file "$SCRIPT_DIR/Brewfile"
 # Mac apps
-brew bundle install --file $DOTFILES/Brewfile-casks-store
+brew bundle install --file "$SCRIPT_DIR/Brewfile-casks-store"
 echo ""
 echo "done ..."
 echo ""
 sleep 1
 
 # Install additional fonts
-sudo cp $HOME/.dotfiles/fonts/* /Library/Fonts
+sudo cp "$SCRIPT_DIR/fonts/"* /Library/Fonts
 
 # Install Go applications
-bash -c $DOTFILES/go_apps.sh
+bash -c "$SCRIPT_DIR/go_apps.sh"
 
 # Setup dotfiles
-bash -c $DOTFILES/setup_links.sh
+bash -c "$SCRIPT_DIR/setup_links.sh"
 
 # Setup Zsh
-bash -c $DOTFILES/setup_zsh.sh
-
-# Setup Tmux
-bash -c $DOTFILES/setup_tmux.sh
+bash -c "$SCRIPT_DIR/setup_zsh.sh"
 
 # Setup OsX defaults
-bash -c $DOTFILES/osx_prefs.sh
+bash -c "$SCRIPT_DIR/osx_prefs.sh"
 
 # Add TouchID authentication to Sudo
 if [[ ! `grep "pam_tid.so" /etc/pam.d/sudo` ]]; then

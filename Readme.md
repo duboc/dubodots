@@ -87,7 +87,7 @@ The dotfiles is structured as:
 
 **Files in the `./shellconfig` directory:**
 
-* `./shellconfig/shellrc.sh` - This is called by `.zshrc` and `.bashrc`. Loads shell configuration that is common for zsh and bash. Sources the aliases, exports, functions, iTerm2 integration and any utility completion or plugin. Calls Neofetch at the end.
+* `./shellconfig/shellrc.sh` - This is called by `.zshrc` and `.bashrc`. Loads shell configuration that is common for zsh and bash. Sources the aliases, exports, functions, iTerm2 integration and any utility completion or plugin.
 * `./shellconfig/aliases.sh` - Aliases common to Mac and Linux
 * `./shellconfig/aliases_mac.sh` - Aliases specific to MacOS and depending on Mac applications
 * `./shellconfig/exports.sh` - Exports for both Mac and Linux. Generic shell config, utilities and PATH.

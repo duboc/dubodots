@@ -8,7 +8,9 @@ fi
 
 echo "Starting Zsh setup"
 echo ""
-DOTFILES=$HOME/.dotfiles
+
+# Determine script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 sudo -v
 
@@ -51,16 +53,6 @@ else
     fi
 fi
 
-
-echo ""
-echo "Update dotfiles"
-if [[ ! -d "$DOTFILES" ]]; then
-    git clone https://github.com/duboc/dubodots.git $DOTFILES
-else
-    echo "You already have the dotfiles, updating..."
-    pushd $DOTFILES; git pull --rebase --autostash; popd
-fi
-
 echo ""
 echo "Install oh-my-zsh"
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
@@ -95,12 +87,12 @@ fi
 echo ""
 echo "Add completion scripts"
 mkdir -p $HOME/.oh-my-zsh/completions
-for FILE in $HOME/.dotfiles/completion/*; do
+for FILE in "$SCRIPT_DIR/completion/"*; do
     ln -sfn "$FILE" $HOME/.oh-my-zsh/completions/_$(basename $FILE)
 done
 
 # Link .rc files
-bash -c $DOTFILES/setup_links.sh
+bash -c "$SCRIPT_DIR/setup_links.sh"
 
 # Zsh plugins
 ZSH_CUSTOM=$HOME/.oh-my-zsh/custom
@@ -169,11 +161,11 @@ popd
 
 echo ""
 echo "Update kubectx/kubens plugins"
-pushd $DOTFILES/bin
+pushd "$SCRIPT_DIR/bin"
 for X in kubectx kubens; do
     curl -sL -o $X https://raw.githubusercontent.com/ahmetb/kubectx/master/$X
     chmod +x $X
-    pushd $DOTFILES/completion
+    pushd "$SCRIPT_DIR/completion"
     curl -sL -o $X.bash https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/$X.bash
     curl -sL -o $X.zsh https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/$X.zsh
     chmod +x $X.bash

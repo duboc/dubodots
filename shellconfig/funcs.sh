@@ -34,15 +34,6 @@ function gsendpatch () {
     $@ $patch
 }
 
-# Query Docker image manifest
-function qi () {
-    echo "Querying image $1"
-    OUT=$(docker manifest inspect $1 | jq -r '.manifests[] | [.platform.os, .platform.architecture] |@csv' | sed -E 's/\"(.*)\",\"(.*)\"/- \1\/\2/g' | grep -v '^/$' 2> /dev/null)
-    echo $OUT
-
-}
-}
-
 # Create directory and cd into it
 mkcd() {
   mkdir -p "$1" && cd "$1"

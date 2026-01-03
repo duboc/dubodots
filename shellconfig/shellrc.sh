@@ -66,10 +66,6 @@ fi
 # These are at the end to print on user login
 #####
 
-# Neofetch
-if [ -x "$(command -v neofetch)" ] > /dev/null 2>&1; then
-    neofetch --disable packages
-fi
 
 if tmux list-sessions > /dev/null 2>&1; then
     echo ""
