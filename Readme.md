@@ -12,35 +12,20 @@ A modular, cross-platform collection of dotfiles, shell scripts, and system conf
 
 ## Installation
 
-### macOS Setup
+### Quick Start
 
-Run the standard macOS setup script:
+Run the unified setup script (automatically detects macOS or Linux):
 
 ```sh
 # Clone repository to user home directory
-git clone https://github.com/duboc/dubodots $HOME/.dotfiles
+git clone https://github.com/duboc/dubodots.git $HOME/.dotfiles
 cd $HOME/.dotfiles
 
-# Execute macOS setup script
-./setup_mac.sh
+# Execute unified setup script
+./setup.sh
 ```
 
 Restart your terminal session after setup completes to reload Zsh configurations and environment settings.
-
-### Linux Setup
-
-Run the Linux setup script:
-
-```sh
-# Clone repository to user home directory
-git clone https://github.com/duboc/dubodots $HOME/.dotfiles
-cd $HOME/.dotfiles
-
-# Execute Linux setup script
-./setup_linux.sh
-```
-
-Restart your terminal session after setup completes.
 
 ### Proxy & Custom Network Environments
 
@@ -86,9 +71,11 @@ dubodots/
 ├── Brewfile-casks-store # Applications installed via Homebrew Casks
 ├── go_apps.sh           # Go developer binaries installer (go install)
 ├── osx_prefs.sh         # macOS user defaults and productivity tweaks
+├── setup.sh             # Unified entry point script (auto-detects OS & architecture)
+├── setup_git_user.sh    # Interactive Git identity configuration script
 ├── setup_links.sh       # Symlink generator for dotfiles and config directories
-├── setup_mac.sh         # Master orchestration script for macOS
-├── setup_linux.sh       # Master orchestration script for Linux
+├── setup_mac.sh         # macOS orchestration pipeline
+├── setup_linux.sh       # Linux orchestration pipeline
 ├── setup_tmux.sh        # Tmux environment setup
 └── setup_zsh.sh         # Zsh framework, theme, and plugin manager
 ```
