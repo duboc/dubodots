@@ -1,6 +1,5 @@
-[user]
-  name = Anderson Duboc 
-  email = andersonduboc@gmail.com
+[include]
+  path = ~/.gitconfig.local
 
 [color]
     ui = auto
@@ -150,7 +149,6 @@
 
 [sendemail]
   ; setup for using git send-email; prompts for password
-  smtpuser = andersonduboc@gmail.com
   smtpserver = smtp.googlemail.com
   smtpencryption = tls
   smtpserverport = 587

@@ -53,6 +53,11 @@ echo ""
 # Install Go applications
 bash -c $DOTFILES/go_apps.sh
 
+# Setup Git User Identity
+if [ -f "$DOTFILES/setup_git_user.sh" ]; then
+    bash "$DOTFILES/setup_git_user.sh"
+fi
+
 # Setup dotfiles
 bash -c $DOTFILES/setup_links.sh
 

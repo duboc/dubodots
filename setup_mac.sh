@@ -62,6 +62,11 @@ if [ -f "$SCRIPT_DIR/go_apps.sh" ]; then
     bash "$SCRIPT_DIR/go_apps.sh"
 fi
 
+# Setup Git User Identity
+if [ -f "$SCRIPT_DIR/setup_git_user.sh" ]; then
+    bash "$SCRIPT_DIR/setup_git_user.sh"
+fi
+
 # Setup dotfiles links
 if [ -f "$SCRIPT_DIR/setup_links.sh" ]; then
     bash "$SCRIPT_DIR/setup_links.sh"

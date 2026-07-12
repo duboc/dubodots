@@ -31,16 +31,12 @@ if [ -x "$(command $tmuxcommand --version)" ] 2> /dev/null 2>&1; then
     fi
 fi
 
-echo "Get dotfiles"
-if [[ ! -d "$DOTFILES" ]]; then
-    git clone https://github.com/duboc/dubodots.git $DOTFILES
-else
-    echo "You already have the dotfiles, updating..."
-    pushd $DOTFILES; git pull; popd
-fi
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DOTFILES="${DOTFILES:-$SCRIPT_DIR}"
 
-# Link .rc files
-bash -c $DOTFILES/setup_links.sh
+if [ -f "$DOTFILES/setup_links.sh" ]; then
+    bash "$DOTFILES/setup_links.sh"
+fi
 
 echo "Install .tmux"
 if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
