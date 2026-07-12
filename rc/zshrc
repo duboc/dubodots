@@ -62,11 +62,11 @@ export VISUAL='vim'
 typeset -U path  # Automatically deduplicate PATH entries
 
 path=(
-  /Users/duboc/.antigravity/antigravity/bin
-  /Users/duboc/.jetski/jetski/bin
-  /Users/duboc/.codeium/windsurf/bin
-  /Users/duboc/.local/bin
-  /Users/duboc/Library/Python/3.9/bin
+  $HOME/.antigravity/antigravity/bin
+  $HOME/.jetski/jetski/bin
+  $HOME/.codeium/windsurf/bin
+  $HOME/.local/bin
+  $HOME/Library/Python/3.9/bin
   /opt/homebrew/opt/fzf/bin
   /opt/homebrew/bin
   /usr/local/go/bin

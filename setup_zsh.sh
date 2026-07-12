@@ -1,142 +1,129 @@
 #!/bin/bash
 
 # Check pre-reqs
-if [[ $(command -v git) == "" ]] || [[ $(command -v curl) == "" ]]; then
+if ! command -v git &>/dev/null || ! command -v curl &>/dev/null; then
     echo "Curl or git not installed..."
     exit 1
 fi
 
-echo "Starting Zsh setup"
+echo "Starting Zsh setup..."
 echo ""
 
 # Determine script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-sudo -v
+# Check Homebrew environment
+if [ -x "/opt/homebrew/bin/brew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x "/usr/local/bin/brew" ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
 
-if [ -x "$(command zsh --version)" ] 2> /dev/null 2>&1; then
-    echo "Zsh not installed, installing..."
-
-    if [ $(uname) == "Darwin" ]; then
-        echo "Checking if Homebrew is installed"
-        echo ""
-        if [[ $(command -v brew) == "" ]]; then
-            echo "Homebrew not installed, installing..."
-            /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-            echo ""
-        fi
-        # Install Zsh on Mac
+# Ensure Zsh is installed
+if ! command -v zsh &>/dev/null; then
+    echo "Zsh not found, installing..."
+    if [ "$(uname)" == "Darwin" ]; then
         brew install zsh
     else
-        # Install Zsh on Linux
-        if [ $(cat /etc/os-release | grep -i "ID=debian") ] || [ $(cat /etc/os-release | grep -i "ID=ubuntu") ]; then
-            sudo apt update
-            sudo apt install -y zsh
-        fi
-        if [ $(cat /etc/os-release | grep -i "ID=fedora") ]; then
+        if grep -qi "debian\|ubuntu" /etc/os-release 2>/dev/null; then
+            sudo apt update && sudo apt install -y zsh
+        elif grep -qi "fedora" /etc/os-release 2>/dev/null; then
             sudo dnf install -y zsh
         fi
     fi
 fi
 
-echo "Change default shell to zsh"
-if [ $(uname) == "Darwin" ]; then
-    sudo chsh -s /usr/local/bin/zsh $USER
-else
-    if [ $(cat /etc/os-release | grep -i "ID=debian") ] || [ $(cat /etc/os-release | grep -i "ID=ubuntu") ] || [ $(cat /etc/os-release | grep -i "ID=alpine"); then
-        ZSH=`which zsh`
-        sudo chsh $USER -s $ZSH
-    fi
-    if [ $(cat /etc/os-release | grep -i "ID=fedora") ]; then
-        ZSH=`which zsh`
-        sudo usermod --shell $ZSH $USER
+# Set default shell if needed (macOS default shell is already /bin/zsh)
+ZSH_PATH="$(which zsh)"
+CURRENT_SHELL="$(dscl . -read /Users/$USER UserShell 2>/dev/null | awk '{print $2}')"
+if [ "$CURRENT_SHELL" != "$ZSH_PATH" ] && [ "$CURRENT_SHELL" != "/bin/zsh" ]; then
+    echo "Current shell is $CURRENT_SHELL. Attempting to change default shell to $ZSH_PATH..."
+    if [ -t 0 ]; then
+        chsh -s "$ZSH_PATH" || sudo chsh -s "$ZSH_PATH" "$USER" || true
+    else
+        sudo chsh -s "$ZSH_PATH" "$USER" 2>/dev/null || echo "Note: To change default shell to zsh, run: sudo chsh -s $ZSH_PATH $USER"
     fi
 fi
 
-echo ""
-echo "Install oh-my-zsh"
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-    curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
-else
-    echo "You already have the oh-my-zsh, updating..."
-    pushd $HOME/.oh-my-zsh; git pull --rebase --autostash; popd
-fi
 
 echo ""
-echo "Install fzf plugin"
-if [[ $(command -v go) != "" ]]; then
-    # Install fzf - Command line fuzzy finder
-    echo "Installing fzf"
-    go get -u github.com/junegunn/fzf
+echo "Installing/Updating Oh My Zsh..."
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 else
-    echo "You don't have Go installed, can't install fzf."
-fi
-
-if [[ ! -d "$HOME/.fzf" ]]; then
-    git clone https://github.com/junegunn/fzf $HOME/.fzf --depth=1
-else
-    echo "You already have the fzf config, updating..."
-    pushd $HOME/.fzf; git pull --depth=1; popd
-fi
-
-if [[ $(command -v fzf) == "" ]]; then
-    echo "You don't have fzf installed, install thru go_apps.sh script..."
-    echo ""
+    echo "Oh My Zsh is already installed, updating..."
+    (cd "$HOME/.oh-my-zsh" && git pull --rebase --autostash)
 fi
 
 echo ""
-echo "Add completion scripts"
-mkdir -p $HOME/.oh-my-zsh/completions
-for FILE in "$SCRIPT_DIR/completion/"*; do
-    ln -sfn "$FILE" $HOME/.oh-my-zsh/completions/_$(basename $FILE)
-done
+echo "Checking fzf configuration..."
+if [ ! -d "$HOME/.fzf" ]; then
+    git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf"
+    "$HOME/.fzf/install" --all --no-bash --no-fish || true
+else
+    echo "Updating fzf..."
+    (cd "$HOME/.fzf" && git pull --depth 1)
+fi
+
+echo ""
+echo "Adding custom completion scripts..."
+mkdir -p "$HOME/.oh-my-zsh/custom/completions"
+if [ -d "$SCRIPT_DIR/completion" ]; then
+    for FILE in "$SCRIPT_DIR/completion/"*; do
+        [ -e "$FILE" ] || continue
+        ln -sfn "$FILE" "$HOME/.oh-my-zsh/custom/completions/_$(basename "$FILE")"
+    done
+fi
 
 # Link .rc files
-bash -c "$SCRIPT_DIR/setup_links.sh"
+if [ -f "$SCRIPT_DIR/setup_links.sh" ]; then
+    bash "$SCRIPT_DIR/setup_links.sh"
+fi
 
 # Zsh plugins
-ZSH_CUSTOM=$HOME/.oh-my-zsh/custom
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
-themes=("https://github.com/romkatv/powerlevel10k" \
-        )
+themes=(
+    "https://github.com/romkatv/powerlevel10k"
+)
 
-for t in "${themes[@]}"
-    do
-    echo "Installing $t prompt..."
-    theme_name=`basename $t`
-    if [[ ! -d "$ZSH_CUSTOM/themes/$theme_name" ]]; then
+for t in "${themes[@]}"; do
+    theme_name="$(basename "$t")"
+    echo "Checking theme $theme_name..."
+    if [ ! -d "$ZSH_CUSTOM/themes/$theme_name" ]; then
         echo "Installing $theme_name..."
-        git clone $t "$ZSH_CUSTOM/themes/$theme_name"
+        git clone "$t" "$ZSH_CUSTOM/themes/$theme_name"
     else
-        echo "You already have $theme_name, updating..."
-        pushd $ZSH_CUSTOM/themes/$theme_name; git pull; popd
+        echo "Updating $theme_name..."
+        (cd "$ZSH_CUSTOM/themes/$theme_name" && git pull)
     fi
 done
 
-# Add plugins to the array below
-plugins=("https://github.com/TamCore/autoupdate-oh-my-zsh-plugins" \
-         "https://github.com/zsh-users/zsh-autosuggestions" \
-         "https://github.com/zdharma/fast-syntax-highlighting" \
-         "https://github.com/zsh-users/zsh-completions" \
-         "https://github.com/zsh-users/zsh-history-substring-search" \
-         "https://github.com/MichaelAquilina/zsh-you-should-use" \
-         "https://github.com/wfxr/forgit"
-        )
+# Active plugins array (fixed zdharma-continuum URL)
+plugins=(
+    "https://github.com/TamCore/autoupdate-oh-my-zsh-plugins"
+    "https://github.com/zsh-users/zsh-autosuggestions"
+    "https://github.com/zdharma-continuum/fast-syntax-highlighting"
+    "https://github.com/zsh-users/zsh-completions"
+    "https://github.com/zsh-users/zsh-history-substring-search"
+    "https://github.com/MichaelAquilina/zsh-you-should-use"
+    "https://github.com/wfxr/forgit"
+)
+
 plugin_names=()
-for p in "${plugins[@]}"
-    do
-    plugin_name=`basename $p`
-    plugin_names+=($plugin_name)
-    echo "Installing $plugin_name..."
-    if [[ ! -d "$ZSH_CUSTOM/plugins/$plugin_name" ]]; then
-        git clone $p "$ZSH_CUSTOM/plugins/$plugin_name"
+mkdir -p "$ZSH_CUSTOM/plugins"
+for p in "${plugins[@]}"; do
+    plugin_name="$(basename "$p")"
+    plugin_names+=("$plugin_name")
+    echo "Installing/updating plugin $plugin_name..."
+    if [ ! -d "$ZSH_CUSTOM/plugins/$plugin_name" ]; then
+        git clone "$p" "$ZSH_CUSTOM/plugins/$plugin_name"
     else
-        echo "You already have $plugin_name, updating..."
-        pushd $ZSH_CUSTOM/plugins/$plugin_name; git pull --rebase --autostash; popd
+        (cd "$ZSH_CUSTOM/plugins/$plugin_name" && git pull --rebase --autostash)
     fi
 done
 
-# Check if array contains element
+# Helper function
 containsElement () {
   local e match="$1"
   shift
@@ -145,45 +132,33 @@ containsElement () {
 }
 
 echo ""
-echo "Clean unused plugins"
-pushd "$ZSH_CUSTOM/plugins/"
-for d in *; do
-    if [ -d "$d" ]; then
-        if containsElement $d "${plugin_names[@]}"; then
-            echo "Contains $d."
+echo "Cleaning unused plugins..."
+if [ -d "$ZSH_CUSTOM/plugins" ]; then
+    for d in "$ZSH_CUSTOM/plugins/"*; do
+        [ -d "$d" ] || continue
+        dirname="$(basename "$d")"
+        if containsElement "$dirname" "${plugin_names[@]}"; then
+            echo "Keeping plugin: $dirname"
         else
-            echo "Does not contain $d, removing."
-            rm -rf $d
+            echo "Removing obsolete plugin: $dirname"
+            rm -rf "$d"
         fi
-    fi
-done
-popd
+    done
+fi
 
 echo ""
-echo "Update kubectx/kubens plugins"
-pushd "$SCRIPT_DIR/bin"
+echo "Updating kubectx / kubens..."
+mkdir -p "$SCRIPT_DIR/bin" "$SCRIPT_DIR/completion"
 for X in kubectx kubens; do
-    curl -sL -o $X https://raw.githubusercontent.com/ahmetb/kubectx/master/$X
-    chmod +x $X
-    pushd "$SCRIPT_DIR/completion"
-    curl -sL -o $X.bash https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/$X.bash
-    curl -sL -o $X.zsh https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/$X.zsh
-    chmod +x $X.bash
-    chmod +x $X.zsh
-    popd
-done;
-popd
+    curl -sL -o "$SCRIPT_DIR/bin/$X" "https://raw.githubusercontent.com/ahmetb/kubectx/master/$X"
+    chmod +x "$SCRIPT_DIR/bin/$X"
+    curl -sL -o "$SCRIPT_DIR/completion/$X.bash" "https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/$X.bash"
+    curl -sL -o "$SCRIPT_DIR/completion/$X.zsh" "https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/$X.zsh"
+    chmod +x "$SCRIPT_DIR/completion/$X.bash" "$SCRIPT_DIR/completion/$X.zsh"
+done
 
 echo ""
-echo "Clean completion cache"
-\rm -rf $home/.zcompdump*
+echo "Cleaning completion cache..."
+rm -f "$HOME/.zcompdump"*
 
-# Cloud SDK Completion (if installed via Brew/Cask)
-if [ -f "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc" ]; then
-    source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
-fi
-if [ -f "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc" ]; then
-    source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
-fi
-
-echo "Zsh setup finished."
+echo "Zsh setup finished successfully."

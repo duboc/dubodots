@@ -1,9 +1,8 @@
-# Larger bash history (allow 32³ entries; default is 500)
+# Larger bash history
 export HISTSIZE=50000000;
 export HISTFILESIZE=$HISTSIZE;
 export HISTCONTROL=ignoredups;
-# Make some commands not show up in history
-export HISTIGNORE=" *:ls:cd:cd -:pwd:exit:date:* --help:* -h:pony:pony add *:pony update *:pony save *:pony ls:pony ls *:history*";
+export HISTIGNORE=" *:ls:cd:cd -:pwd:exit:date:* --help:* -h:history*";
 export HISTTIMEFORMAT="%d/%m/%y %T "
 
 # Prefer US English and use UTF-8
@@ -16,16 +15,13 @@ export MANPAGER="less -X";
 # Do not clear screen after exiting LESS
 unset LESS
 
-# Make vim the default editor
+# Make vim default editor
 export EDITOR="vim"
 
-# colored GCC warnings and errors
+# Colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-# Highlight section titles in manual pages
-export LESS_TERMCAP_md="$ORANGE"
-
-# Add alt-up/down keybinding to fzf preview window
+# Keybindings for forgit / fzf
 export FORGIT_FZF_DEFAULT_OPTS="
 $FORGIT_FZF_DEFAULT_OPTS
 --bind='alt-up:preview-up'
@@ -33,18 +29,25 @@ $FORGIT_FZF_DEFAULT_OPTS
 --no-mouse
 "
 
+# Homebrew setup (Apple Silicon / Intel dynamically)
+if [ -x "/opt/homebrew/bin/brew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x "/usr/local/bin/brew" ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+
 # Additional PATH exports
 export PATH="$HOME/.dotfiles/bin:$PATH"
-export PATH="/usr/local/sbin:$PATH"
-export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+[ -d "/opt/homebrew/opt/coreutils/libexec/gnubin" ] && export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+[ -d "/usr/local/opt/coreutils/libexec/gnubin" ] && export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 
 ## Golang path
 export GOPATH=$HOME/go
-export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
+export PATH=$GOPATH/bin:$PATH
 
 # Set JAVA home dir
 if [ -f /usr/libexec/java_home ]; then
-    export JAVA_HOME=`/usr/libexec/java_home`
+    export JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null)
 fi
 
 # Google Cloud / Kubernetes

@@ -1,97 +1,94 @@
-# Console Dotfiles
+# Console Dotfiles (`dubodots`)
 
-This is an attempt to document my dotfiles and each directory/file purpose. The configuration should be similar between `bash` and `zsh` shells. I use `zsh` by default.
+A modular, cross-platform collection of dotfiles, shell scripts, and system configurations designed for macOS and Linux. Built with shell scripting best practices, user-space isolation, Apple Silicon (ARM64) and Intel compatibility, and non-destructive installation patterns.
 
-## Installing
+## Features & Design Principles
 
-The dotfiles serves both Linux and Mac hosts. I have different methods of setting each up.
+* **Cross-Platform & Architecture Aware**: Automatically resolves Homebrew paths (`/opt/homebrew` on Apple Silicon vs `/usr/local` on Intel macOS / Linux).
+* **Least-Privilege & User-Space Priority**: Installs custom fonts into user directories (`~/Library/Fonts`) without requiring root access or `sudo`.
+* **Idempotent & Non-Destructive**: Safe to re-run anytime. Preserves existing `.config/` directories when linking custom application configs.
+* **Modern Tooling & Up-to-Date Sources**: Uses `go install` for Go binaries, maintained Zsh plugins (e.g., `zdharma-continuum`), and current Oh My Zsh repositories.
+* **Touch ID for Sudo (macOS)**: Integrates Touch ID authentication using `/etc/pam.d/sudo_local`, preserving system compatibility across OS upgrades.
 
-### Mac
+## Installation
 
-On Mac, the process to setup is:
+### macOS Setup
 
-```sh
-# Checkout the files
-git clone https://github.com/duboc/dubodots $HOME/.dotfiles
-pushd $HOME/.dotfiles
-
-# Run setup_mac.sh
-./setup_mac.sh
-popd
-```
-
-Now close the current terminal and reopen.
-
-### Linux
-
-On Linux, the process to setup is:
-
-On Mac, the process to setup is:
+Run the standard macOS setup script:
 
 ```sh
-# Checkout the files
+# Clone repository to user home directory
 git clone https://github.com/duboc/dubodots $HOME/.dotfiles
-pushd $HOME/.dotfiles
+cd $HOME/.dotfiles
 
-# Run setup_mac.sh
+# Execute macOS setup script
 ./setup_mac.sh
-popd
 ```
 
-Now close the current terminal and reopen.
+Restart your terminal session after setup completes to reload Zsh configurations and environment settings.
 
-### Corporate / Proxy Environments
+### Linux Setup
 
-If you are behind a corporate proxy, ensure your `http_proxy` and `https_proxy` environment variables are set before running the setup scripts. You might also need to configure `npm`, `git`, and `curl` to use custom CA certificates if required by your organization.
+Run the Linux setup script:
 
-### Linux
+```sh
+# Clone repository to user home directory
+git clone https://github.com/duboc/dubodots $HOME/.dotfiles
+cd $HOME/.dotfiles
 
-Now close the current terminal and reopen.
+# Execute Linux setup script
+./setup_linux.sh
+```
+
+Restart your terminal session after setup completes.
+
+### Proxy & Custom Network Environments
+
+If operating behind a custom HTTP/HTTPS proxy or restricted network environment, export your proxy variables before running the setup scripts:
+
+```sh
+export http_proxy="http://proxy.example.com:8080"
+export https_proxy="http://proxy.example.com:8080"
+```
+
+Ensure `npm`, `git`, and `curl` are configured with any required custom CA certificates.
 
 ## Shell Configuration
 
-### Zsh
+### Zsh & Oh My Zsh
 
-* P10K
+* **Theme**: Powerlevel10k prompt.
+* **Plugins**: Autosuggestions, fast-syntax-highlighting, history-substring-search, you-should-use, forgit, and completions.
+* **Shell Switching**: `setup_zsh.sh` inspects the active user shell (`dscl` on macOS) and safely configures Zsh as the user default.
 
-### Bash
+### Tmux & Visual Themes
 
-## File/Dir Structure
+* Customized tmux layout using `blue.tmuxtheme`.
+* Configured via `setup_tmux.sh`.
 
-The dotfiles is structured as:
+## File & Directory Structure
 
-### Directories
-
-* `./bin` - These are some utility scripts or platform specific binaries. These are added to the `$PATH`
-* `./completion` - Holds custom command completion scripts for bash and zsh
-* `./fonts` - Console monospaced fonts. Some have been patched with [nerdfonts](https://github.com/ryanoasis/nerd-fonts) to have special characters. Needs to be installed manually depending on the platform.
-* `./rc` - This dir holds application config files and directories that are linked as `.filerc` in the user home dir. They are automatically linked by the `setup_links.sh` script and their link will have the `.` prepended.
-* `./rc/iterm2` - iTerm2 utilities installed by the "Install Shell Integration" menu option
-* `./shellconfig` - This directory has the shell config variables for both `bash` and `zsh`
-
-### File roles
-
-**Files in `./`:**
-
-* `.ignore` - Ignores some files that contain personal data and should not be in GitHub
-* `blue.tmuxtheme` - Tmux theme config file. Used by `.tmux.conf`.
-* `Brewfile` - Homebrew packages installed on Mac. Install by using `brew bundle install`. Called by `setup_mac.sh`.
-* `Brewfile-casks-store` - Homebrew cask packages installed on Mac. Install by using `brew bundle install --file Brewfile-casks-store`. Called by `setup_mac.sh`.
-* `go_apps.sh` - Installs Golang utility applications like Hub, fzf, etc by `go get -u [app]`.
-* `osx_prefs.sh` - Configures MacOS `default` settings. Called by `setup_mac.sh`.
-* `setup_links.sh` - Configures symbolic links to directories and rc files. Called by `setup_mac.sh`, `setup_tmux.sh` and `setup_zsh.sh`.
-* `setup_mac.sh` - Setup Mac with command line tools, Homebrew package manager. Installs homebrew applications, fonts, go applications, links, zsh, tmux thru aux scripts. All Mac related setup goes here.
-* `setup_linux.sh` - Setup Linux with basic packages. Installs go applications, links, zsh, tmux thru aux scripts. All Linux related setup goes here.
-* `setup_tmux.sh` - Installs and configure Tmux on any platform (Mac / Linux)
-* `setup_zsh.sh` - Installs and configures Zsh, its plugins and theme. Sets it as default for current user. Also updates all packages and dependencies whenever run.
-
-**Files in the `./shellconfig` directory:**
-
-* `./shellconfig/shellrc.sh` - This is called by `.zshrc` and `.bashrc`. Loads shell configuration that is common for zsh and bash. Sources the aliases, exports, functions, iTerm2 integration and any utility completion or plugin.
-* `./shellconfig/aliases.sh` - Aliases common to Mac and Linux
-* `./shellconfig/aliases_mac.sh` - Aliases specific to MacOS and depending on Mac applications
-* `./shellconfig/exports.sh` - Exports for both Mac and Linux. Generic shell config, utilities and PATH.
-* `./shellconfig/funcs.sh` - Define some functions where behaviour is too complex for an alias
-* `./shellconfig/iterm_shell_integration.*` - These are the scripts loaded for iTerm2 integration
-* `./shellconfig/kubernetes.sh` - Kubernetes functions and aliases. Loaded only when `kubectl` is present.
-
+```
+dubodots/
+├── bin/                 # Helper scripts and platform-specific binaries added to $PATH
+├── completion/          # Shell completion scripts for Zsh & Bash (e.g., kubectx, kubens)
+├── fonts/               # Monospaced fonts (patched with Nerd Fonts icons)
+├── rc/                  # Application runtime configuration files symlinked to ~/.rc
+│   └── config/          # Sub-configurations symlinked into ~/.config/ (git, htop, iterm2)
+├── shellconfig/         # Shared shell configuration scripts for Zsh and Bash
+│   ├── aliases.sh       # Cross-platform command aliases
+│   ├── aliases_mac.sh   # macOS specific application aliases
+│   ├── exports.sh       # PATH, environment variables, and tool bindings
+│   ├── funcs.sh         # Shell utility functions
+│   ├── kubernetes.sh    # Kubernetes / kubectl helpers
+│   └── shellrc.sh       # Main entry point loaded by .zshrc and .bashrc
+├── Brewfile             # Core Homebrew formulae for macOS
+├── Brewfile-casks-store # Applications installed via Homebrew Casks
+├── go_apps.sh           # Go developer binaries installer (go install)
+├── osx_prefs.sh         # macOS user defaults and productivity tweaks
+├── setup_links.sh       # Symlink generator for dotfiles and config directories
+├── setup_mac.sh         # Master orchestration script for macOS
+├── setup_linux.sh       # Master orchestration script for Linux
+├── setup_tmux.sh        # Tmux environment setup
+└── setup_zsh.sh         # Zsh framework, theme, and plugin manager
+```

@@ -1,81 +1,97 @@
 #!/bin/bash
+set -e
 
 # Determine script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$HOME"
 
-echo "Don't forget to install XCode or Developer tools"
+echo "Checking Developer Tools installation..."
 echo "======================================================="
-echo ""
-echo "Testing if you have XCode or Developer tools already installed"
-echo ""
 
-# Keep-alive: update existing `sudo` time stamp until finished
-sudo -v
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-echo ""
-# Test for XCode install
-if [[ ! `which gcc` ]]; then
-    echo "Xcode/Dev Tools not installed. Installing..."
+# Test for XCode Command Line Tools install
+if ! xcode-select -p &>/dev/null; then
+    echo "Xcode Command Line Tools not installed. Triggering installation..."
     xcode-select --install
 else
-    echo "Dev Tools detected, installation will proceed in 2 seconds"
+    echo "Developer Tools detected."
 fi
 echo ""
-sleep 2
 
 # Test if homebrew is installed
-echo "Testing if you have Homebrew already installed"
-echo ""
-if [[ ! `which brew` ]]; then
-    echo "Homebrew not installed, installing..."
-    echo ""
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+echo "Checking Homebrew installation..."
+if ! command -v brew &>/dev/null; then
+    if [ -x "/opt/homebrew/bin/brew" ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -x "/usr/local/bin/brew" ]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    else
+        echo "Homebrew not installed, installing..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        if [ -x "/opt/homebrew/bin/brew" ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        fi
+    fi
 else
-    echo "Homebrew is installed, will update"
-    echo ""
+    echo "Homebrew is installed ($(command -v brew)). Updating..."
     brew update
 fi
-sleep 3
+echo ""
 
-echo "Install brews"
+echo "Installing Brew packages..."
 echo "==================================="
-echo ""
-# Command line apps
-brew bundle install --file "$SCRIPT_DIR/Brewfile"
-# Mac apps
-brew bundle install --file "$SCRIPT_DIR/Brewfile-casks-store"
-echo ""
-echo "done ..."
-echo ""
-sleep 1
-
-# Install additional fonts
-sudo cp "$SCRIPT_DIR/fonts/"* /Library/Fonts
-
-# Install Go applications
-bash -c "$SCRIPT_DIR/go_apps.sh"
-
-# Setup dotfiles
-bash -c "$SCRIPT_DIR/setup_links.sh"
-
-# Setup Zsh
-bash -c "$SCRIPT_DIR/setup_zsh.sh"
-
-# Setup OsX defaults
-bash -c "$SCRIPT_DIR/osx_prefs.sh"
-
-# Add TouchID authentication to Sudo
-if [[ ! `grep "pam_tid.so" /etc/pam.d/sudo` ]]; then
-    echo -e "auth       sufficient     pam_tid.so\n$(cat /etc/pam.d/sudo)" |sudo tee /etc/pam.d/sudo;
+if [ -f "$SCRIPT_DIR/Brewfile" ]; then
+    brew bundle install --file "$SCRIPT_DIR/Brewfile"
 fi
 
-# Add user to passwordless sudo
-#sudo sed -i "%admin    ALL = (ALL) NOPASSWD:ALL"
-
-echo "Setup finished!"
+if [ -f "$SCRIPT_DIR/Brewfile-casks-store" ]; then
+    echo "Installing Casks..."
+    brew bundle install --file "$SCRIPT_DIR/Brewfile-casks-store" || echo "Note: Skipping optional casks that require manual installation or are already installed."
+fi
+echo "Brew bundle finished."
 echo ""
+
+# Install additional fonts in user-space font directory (~/Library/Fonts)
+echo "Installing fonts into user directory (~/Library/Fonts)..."
+mkdir -p "$HOME/Library/Fonts"
+if [ -d "$SCRIPT_DIR/fonts" ]; then
+    cp "$SCRIPT_DIR/fonts/"* "$HOME/Library/Fonts/" 2>/dev/null || true
+fi
+
+# Install Go applications
+if [ -f "$SCRIPT_DIR/go_apps.sh" ]; then
+    bash "$SCRIPT_DIR/go_apps.sh"
+fi
+
+# Setup dotfiles links
+if [ -f "$SCRIPT_DIR/setup_links.sh" ]; then
+    bash "$SCRIPT_DIR/setup_links.sh"
+fi
+
+# Setup Zsh
+if [ -f "$SCRIPT_DIR/setup_zsh.sh" ]; then
+    bash "$SCRIPT_DIR/setup_zsh.sh"
+fi
+
+# Setup macOS preferences
+if [ -f "$SCRIPT_DIR/osx_prefs.sh" ]; then
+    bash "$SCRIPT_DIR/osx_prefs.sh"
+fi
+
+# Add TouchID authentication to Sudo using pam_tid.so (prefers macOS sudo_local if available)
+echo "Configuring TouchID for sudo (if supported)..."
+if [ -f /etc/pam.d/sudo_local.template ] && [ ! -f /etc/pam.d/sudo_local ]; then
+    echo "Setting up /etc/pam.d/sudo_local for TouchID..."
+    sudo cp /etc/pam.d/sudo_local.template /etc/pam.d/sudo_local
+    sudo sed -i '' 's/#auth       sufficient     pam_tid.so/auth       sufficient     pam_tid.so/' /etc/pam.d/sudo_local
+elif [ -f /etc/pam.d/sudo ] && ! grep -q "pam_tid.so" /etc/pam.d/sudo; then
+    echo "Adding pam_tid.so to /etc/pam.d/sudo..."
+    echo -e "auth       sufficient     pam_tid.so\n$(cat /etc/pam.d/sudo)" | sudo tee /etc/pam.d/sudo >/dev/null
+fi
+
+echo ""
+echo "Setup finished!"
 echo "NEXT STEPS:"
-echo "1. Run 'gcloud auth login' to set up Google Cloud SDK."
+echo "1. Run 'gcloud auth login' to set up Google Cloud SDK if needed."
 echo "2. Run 'gcloud auth application-default login' if you need ADC."
-echo "3. Restart your terminal to apply Zsh changes."
+echo "3. Restart your terminal to apply all Zsh changes."
+

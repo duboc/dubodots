@@ -1,6 +1,3 @@
 cask_args appdir: "/Applications"
 
-cask "iterm2"
-cask "transmission"
 cask "vlc"
-cask "visual-studio-code"

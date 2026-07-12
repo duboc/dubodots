@@ -1,24 +1,35 @@
 #!/bin/bash
 
-echo "Setting links to dotfiles on user home dir: $HOME"
+echo "Setting links to dotfiles in home directory: $HOME"
 
 create_link() {
-  origin=$1
-  dest=$2
-  echo Linking origin file "$origin" to destination "$dest"
+  origin="$1"
+  dest="$2"
+  echo "Linking: $origin -> $dest"
 
-  if [[ -f "$dest" || -d "$dest" ]] && [ ! -L "$dest" ]; then
-      echo "Destination ($dest) already exists. Renaming to $dest-old"
+  if [[ -e "$dest" ]] && [[ ! -L "$dest" ]]; then
+      echo "  Destination ($dest) already exists as a non-symlink file/directory. Backup to $dest-old"
       mv "$dest" "$dest-old"
   fi
   ln -sfn "$origin" "$dest"
 }
 
-# Determine script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Link .rc files
-for FILE in "$SCRIPT_DIR/rc/"*
-do
-  create_link "$FILE" "$HOME/.$(basename "$FILE")"
+for FILE in "$SCRIPT_DIR/rc/"*; do
+  filename="$(basename "$FILE")"
+  if [ "$filename" = "config" ] && [ -d "$FILE" ]; then
+      echo "Handling ~/.config directory contents..."
+      mkdir -p "$HOME/.config"
+      for SUBITEM in "$FILE/"*; do
+          [ -e "$SUBITEM" ] || continue
+          subname="$(basename "$SUBITEM")"
+          create_link "$SUBITEM" "$HOME/.config/$subname"
+      done
+  else
+      create_link "$FILE" "$HOME/.$filename"
+  fi
 done
+
+echo "Link setup complete."
