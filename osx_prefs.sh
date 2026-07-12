@@ -50,6 +50,12 @@ defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 # Show user ~/Library folder
 chflags nohidden ~/Library 2>/dev/null || true
 
+# Terminal: Set default font for iTerm2 if present
+if defaults read com.googlecode.iterm2 >/dev/null 2>&1; then
+    echo "Configuring iTerm2 default font to MesloLGS NF..."
+    defaults write com.googlecode.iterm2 "Normal Font" -string "MesloLGS-NF-Regular 13" 2>/dev/null || true
+fi
+
 echo "Restarting UI services to apply changes..."
 for app in Finder Dock; do
     killall "$app" >/dev/null 2>&1 || true
