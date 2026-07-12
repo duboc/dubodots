@@ -11,3 +11,6 @@ rc/docker/application-template/
 rc/config/hub
 rc/config/rebar3/hex.config
 rc/config/renode/*
+.gemini/
+memory-bank/
+
