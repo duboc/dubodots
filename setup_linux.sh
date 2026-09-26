@@ -71,5 +71,10 @@ if [ -f "$SCRIPT_DIR/setup_tmux.sh" ]; then
     bash "$SCRIPT_DIR/setup_tmux.sh"
 fi
 
+# Setup AI Coding Agents & obra/superpowers
+if [ -f "$SCRIPT_DIR/setup_agents.sh" ]; then
+    bash "$SCRIPT_DIR/setup_agents.sh"
+fi
+
 echo "Setup finished!"
 

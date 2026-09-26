@@ -85,6 +85,16 @@ if [ -f "$SCRIPT_DIR/setup_zsh.sh" ]; then
     bash "$SCRIPT_DIR/setup_zsh.sh"
 fi
 
+# Setup Tmux
+if [ -f "$SCRIPT_DIR/setup_tmux.sh" ]; then
+    bash "$SCRIPT_DIR/setup_tmux.sh"
+fi
+
+# Setup AI Coding Agents & obra/superpowers
+if [ -f "$SCRIPT_DIR/setup_agents.sh" ]; then
+    bash "$SCRIPT_DIR/setup_agents.sh"
+fi
+
 # Setup macOS preferences
 if [ -f "$SCRIPT_DIR/osx_prefs.sh" ]; then
     bash "$SCRIPT_DIR/osx_prefs.sh"

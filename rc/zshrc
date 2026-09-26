@@ -91,6 +91,7 @@ if [ "$(uname -s)" = "Darwin" ] && [ -f "$HOME/.dotfiles/shellconfig/aliases_mac
   source "$HOME/.dotfiles/shellconfig/aliases_mac.sh"
 fi
 [ -f "$HOME/.dotfiles/shellconfig/kubernetes.sh" ] && source "$HOME/.dotfiles/shellconfig/kubernetes.sh"
+[ -f "$HOME/.dotfiles/shellconfig/agents.sh" ] && source "$HOME/.dotfiles/shellconfig/agents.sh"
 
 # ============================================================================
 # Tool Initialization
@@ -120,6 +121,30 @@ fi
 if command -v helm &> /dev/null; then
   source <(helm completion zsh)
 fi
+
+# uv (Astral Python package & tool manager) completion
+if command -v uv &> /dev/null; then
+  eval "$(uv generate-shell-completion zsh 2>/dev/null)"
+fi
+
+# Jujutsu (jj) completion
+if command -v jj &> /dev/null; then
+  source <(COMPLETE=zsh jj 2>/dev/null)
+fi
+
+# just command runner completion
+if command -v just &> /dev/null; then
+  eval "$(just --completions zsh 2>/dev/null)"
+fi
+
+# Google Cloud SDK path & completion (standalone or Homebrew)
+for gcloud_sdk_dir in "$HOME/google-cloud-sdk" "/opt/homebrew/share/google-cloud-sdk" "/usr/local/share/google-cloud-sdk"; do
+  if [ -d "$gcloud_sdk_dir" ]; then
+    [ -f "$gcloud_sdk_dir/path.zsh.inc" ] && source "$gcloud_sdk_dir/path.zsh.inc"
+    [ -f "$gcloud_sdk_dir/completion.zsh.inc" ] && source "$gcloud_sdk_dir/completion.zsh.inc"
+    break
+  fi
+done
 
 # ============================================================================
 # Virtual Environment Management

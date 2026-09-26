@@ -48,6 +48,11 @@ if command -v kubectl &>/dev/null; then
   source ~/.dotfiles/shellconfig/kubernetes.sh
 fi
 
+# Agentic & Cloud AI FDE helpers
+if [ -f ~/.dotfiles/shellconfig/agents.sh ]; then
+  source ~/.dotfiles/shellconfig/agents.sh
+fi
+
 # Load stern log tool completion
 if command -v stern &>/dev/null && [ -n "${shell}" ]; then
   source <(stern --completion="${shell}")

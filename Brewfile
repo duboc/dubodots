@@ -2,6 +2,7 @@
 brew "ripgrep"
 brew "fd"
 brew "bat"
+brew "eza"
 brew "tree"
 brew "htop"
 brew "ncdu"
@@ -22,6 +23,14 @@ brew "telnet"
 brew "markdown"
 brew "zsh-completions"
 brew "direnv"
+brew "atuin"
+brew "tmux"
+
+# Modern Agentic, Python & VCS workflow (Mitchell Hashimoto / AI FDE stack)
+brew "uv"
+brew "just"
+brew "jj"
+brew "gh"
 
 # Cloud, Kubernetes & Security tools
 brew "k9s"

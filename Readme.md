@@ -1,16 +1,15 @@
 # Console Dotfiles (`dubodots`)
 
-A modular, cross-platform collection of dotfiles, shell scripts, and terminal configurations designed for **cloud developers and terminal power users** on macOS and Linux. Built with shell scripting best practices, user-space isolation, Apple Silicon (ARM64) and Intel compatibility, and non-destructive installation patterns.
+A modular, cross-platform collection of dotfiles, shell scripts, and terminal configurations designed for **Cloud AI Forward Deployed Engineers (FDEs), cloud developers, and agentic terminal power users** on macOS and Linux.
 
 ## Features & Design Principles
 
-* **Cloud-Native & Kubernetes Ready**: Pre-configured with `kubectl`, `kubectx` (`kx`), `kubens` (`kn`), `k9s`, `stern`, `helm`, `jq`, `yq`, and interactive `fzf`-powered pod selection (`klog`, `kexec`, `kdesc`, `kpf`, `wpod`).
-* **Fast Terminal Workflow**: Includes Powerlevel10k with instant prompt, `fzf` fuzzy finding, `ripgrep` (`rg`), `fd`, `bat`, `htop`, `watch`, `direnv`, and lazy-loaded `nvm` for near-instant shell startup.
-* **Cross-Platform & Architecture Aware**: Automatically resolves Homebrew paths (`/opt/homebrew` on Apple Silicon vs `/usr/local` on Intel macOS / Linux) and detects macOS vs Debian/Ubuntu/RHEL/Fedora Linux.
-* **Enterprise & Managed Environment Safe**: Preserves system-provided `/bin/zsh`, `/etc/zshrc`, `/usr/local/git`, and `/usr/local/go` precedence, installs Oh My Zsh and plugins directly via `git clone` without `curl | sh` execution, and avoids storing plaintext Git credentials.
+* **Agentic Coding & `obra/superpowers` Ready**: Out-of-the-box integration with **Antigravity**, **Claude Code**, and **Gemini CLI**, pre-loaded with [`obra/superpowers`](https://github.com/obra/superpowers) skills (Socratic brainstorming, spec-first planning, RED-GREEN-REFACTOR TDD, subagent-driven development, systematic debugging, and isolated Git worktrees).
+* **Mitchell Hashimoto Terminal & Harness Workflow**: Incorporates Mitchell Hashimoto's Ghostty configuration (`desktop-notifications = false` to prevent background agent focus-stealing, fast split navigation), **Jujutsu (`jj`)** workflow (`tug`, `retrunk`), **Harness Engineering** (`harness_init`, `spec_new`, `Justfile`), and `uv` / `gh` triage helpers.
+* **Cloud & AI FDE Toolkit**: Pre-configured with `kubectl`, `kubectx` (`kx`), `kubens` (`kn`), `k9s`, `stern`, `helm`, `jq`, `yq`, `grpcurl`, `sops`, `age`, interactive `fzf` Kubernetes & GCP selectors (`gcpinfo`, `gprojf`, `gctxf`, `klog`, `kexec`, `kpf`), and instant Vertex AI Gemini endpoint testing (`vertex_ping`).
+* **Fast Terminal Workflow**: Includes Powerlevel10k with instant prompt, `fzf` fuzzy finding, `ripgrep` (`rg`), `fd`, `bat`, `eza`, `atuin`, `htop`, `watch`, `direnv`, and lazy-loaded `nvm` for near-instant shell startup.
+* **Enterprise & Managed Environment Safe**: Preserves system-provided `/bin/zsh`, `/etc/zshrc`, `/usr/local/git`, and `/usr/local/go` precedence, disables external agent telemetry (`SUPERPOWERS_DISABLE_TELEMETRY=1`, `DISABLE_TELEMETRY=1`), and avoids storing plaintext credentials.
 * **Local Customization Hooks**: Supports untracked `~/.zshrc.local` and `~/.gitconfig.local` files so machine-specific or work-specific settings never pollute the repository.
-* **Least-Privilege & Idempotent**: Installs custom Nerd Fonts into user directories (`~/Library/Fonts` or `~/.local/share/fonts`) without requiring root access, and safely re-links dotfiles anytime via `./setup_links.sh`.
-* **Touch ID for Sudo (macOS)**: Integrates Touch ID authentication using `/etc/pam.d/sudo_local` when supported by `/etc/pam.d/sudo`, preserving system compatibility across OS upgrades.
 
 ---
 
@@ -38,7 +37,8 @@ Each setup stage is modular and idempotent, so you can run individual scripts an
 | Script | Description |
 | :--- | :--- |
 | `./setup.sh` | Full end-to-end setup for macOS or Linux |
-| `./setup_links.sh` | Creates/updates symlinks in `~` and `~/.config/` and configures terminal fonts (iTerm2 & Ghostty) |
+| `./setup_links.sh` | Creates/updates symlinks in `~`, `~/.config/` (Ghostty, Jujutsu, Git, htop) |
+| `./setup_agents.sh` | Installs/updates [`obra/superpowers`](https://github.com/obra/superpowers) and configures Antigravity, Gemini CLI, and Claude Code |
 | `./setup_zsh.sh` | Installs/updates Oh My Zsh, Powerlevel10k, and Zsh plugins |
 | `./setup_tmux.sh` | Installs/updates Tmux Plugin Manager (`tpm`) and Tmux plugins |
 | `./setup_git_user.sh` | Configures your Git `user.name` and `user.email` in `~/.gitconfig.local` |
@@ -46,44 +46,69 @@ Each setup stage is modular and idempotent, so you can run individual scripts an
 
 ---
 
-## Cloud & Kubernetes Workflow
+## Agentic Development Workflow (`obra/superpowers` & Mitchell Hashimoto)
 
-Defined in [`shellconfig/kubernetes.sh`](shellconfig/kubernetes.sh) and [`shellconfig/aliases.sh`](shellconfig/aliases.sh).
+Configured via [`setup_agents.sh`](setup_agents.sh), [`agents/AGENTS.md`](agents/AGENTS.md), and [`shellconfig/agents.sh`](shellconfig/agents.sh).
 
-### Context & Namespace Switching
-| Alias / Command | Description |
-| :--- | :--- |
-| `k` | `kubectl` (with full Zsh autocompletion) |
-| `kx` | `kubectx` — interactively switch Kubernetes clusters/contexts |
-| `kn` | `kubens` — interactively switch Kubernetes namespaces |
-| `k9` | Launch `k9s` terminal UI |
-| `h` | `helm` (with full Zsh autocompletion) |
+### 1. Multi-Harness `obra/superpowers` Integration
+Running `./setup_agents.sh` clones [`obra/superpowers`](https://github.com/obra/superpowers) into `~/.local/share/superpowers` and wires its 15 core skills (`brainstorming`, `using-git-worktrees`, `writing-plans`, `subagent-driven-development`, `executing-plans`, `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `dispatching-parallel-agents`, etc.) across all major agent harnesses:
+* **Antigravity**: Installed as a plugin in `~/.gemini/config/plugins/superpowers` with `always_on` bootstrap rules in `~/.gemini/config/rules/superpowers.md` and `~/.gemini/config/rules/global-engineering.md`.
+* **Gemini CLI & Universal `.agents`**: Symlinked into `~/.gemini/skills/` and `~/.agents/skills/` with `~/.gemini/GEMINI.md` configured.
+* **Claude Code**: Symlinked into `~/.claude/skills/` with `~/.claude/CLAUDE.md` and privacy-hardened `~/.claude/settings.json`.
 
-### Interactive Pod Helpers (`fzf`-Enabled)
+### 2. Git Worktrees, Jujutsu (`jj`) & Harness Engineering
+Inspired by Mitchell Hashimoto's *"My AI Adoption Journey"* (separate planning from execution, engineer the harness, run background agents in isolated worktrees without desktop notification interruptions):
+
+| Command / Alias | Usage | Description |
+| :--- | :--- | :--- |
+| `wta` | `wta <branch> [base]` | Create an isolated Git worktree in `../<repo>-worktrees/<branch>`, copy `.env`/`.envrc`, run `direnv allow`, and `cd` into it |
+| `wts` | `wts` | Interactive `fzf` worktree switcher with live `git status` + `git log` preview |
+| `wtrm` | `wtrm [worktree]` | Interactive `fzf` worktree remover + `git worktree prune` |
+| `wtlist` | `wtlist` | List active Git worktrees (`git worktree list`) |
+| `harness_init` | `harness_init` | Scaffold `AGENTS.md` (plus `CLAUDE.md` & `GEMINI.md` symlinks), `Justfile`, and `docs/plans/` in the current repo |
+| `spec_new` | `spec_new <slug>` | Create a timestamped spec & TDD implementation plan in `docs/plans/YYYY-MM-DD-<slug>.md` |
+| `ghprs` / `ghissues` | `ghprs` / `ghissues` | Interactive `fzf` GitHub PR checkout and Issue triage browsers with live preview |
+| `js` / `jl` / `jd` / `jn` | Jujutsu (`jj`) | `jj st`, `jj log`, `jj desc`, `jj new` |
+| `jtug` / `jretrunk` | Jujutsu (`jj`) | Move closest bookmark to `@-` (`jj tug`) or rebase onto trunk (`jj retrunk`) |
+| `jx` / `jls` | `just` | Run `just` tasks or `just --list` |
+
+---
+
+## Cloud, Kubernetes & AI FDE Workflow
+
+Defined in [`shellconfig/kubernetes.sh`](shellconfig/kubernetes.sh), [`shellconfig/agents.sh`](shellconfig/agents.sh), and [`shellconfig/aliases.sh`](shellconfig/aliases.sh).
+
+### Google Cloud & Vertex AI FDE Helpers
+| Command / Alias | Usage | Description |
+| :--- | :--- | :--- |
+| `gcpinfo` | `gcpinfo` | Print active `gcloud` config, account, project, region, ADC status, and Kubernetes context |
+| `gprojf` | `gprojf` | Interactive `fzf` GCP project selector (`gcloud projects list` $\rightarrow$ `gcloud config set project`) |
+| `gctxf` | `gctxf` | Interactive `fzf` `gcloud` configuration switcher |
+| `vertex_ping` | `vertex_ping [prompt] [model] [region]` | Smoke-test Vertex AI Gemini REST endpoint (`generateContent`) in the active project to verify IAM, ADC, and VPC-SC |
+| `crun_url` | `crun_url [service]` | Resolve Cloud Run service URL (opens interactive `fzf` picker if omitted) |
+| `gtoken` / `gidtoken` | `gtoken` / `gidtoken` | Print active OAuth2 access token or OIDC identity token |
+| `gadc` | `gadc` | Refresh Google Cloud Application Default Credentials (`gcloud auth application-default login`) |
+| `tf` | `tf` | `terraform` shorthand |
+
+### Kubernetes Context & Interactive Pod Helpers (`fzf`-Enabled)
 All pod helper functions accept an optional pod name substring. **If called with no arguments, they open an interactive `fzf` selector** showing live pod status in the current namespace:
 
-| Function | Usage | Description |
+| Command / Alias | Usage | Description |
 | :--- | :--- | :--- |
-| `klog` | `klog [pod-query] [kubectl-logs-flags...]` | Follow logs (`-f`) for a matching or `fzf`-selected pod |
-| `kexec` | `kexec [pod-query] [command...]` | Execute a command (defaults to `/bin/sh`) in a matching or `fzf`-selected pod |
+| `k` / `kx` / `kn` | `k` / `kx` / `kn` | `kubectl`, `kubectx` (switch cluster), `kubens` (switch namespace) |
+| `k9` / `h` | `k9` / `h` | Launch `k9s` terminal UI or `helm` |
+| `klog` | `klog [pod-query] [flags...]` | Follow logs (`-f`) for a matching or `fzf`-selected pod |
+| `kexec` | `kexec [pod-query] [cmd...]` | Execute a command (defaults to `/bin/sh`) in a matching or `fzf`-selected pod |
 | `kdesc` | `kdesc [pod-query]` | Run `kubectl describe pod` on a matching or `fzf`-selected pod |
 | `kpf` | `kpf [pod-query] <local:remote>` | Port-forward `<local:remote>` (or single `<port>`) to a pod |
 | `wpod` | `wpod [pod-query]` | Watch pods matching a query string every 2 seconds |
-
-### Common `kubectl` & Cloud Aliases
-| Alias | Command | Description |
-| :--- | :--- | :--- |
-| `kg` / `kgall` | `kubectl get` / `kubectl get all` | Inspect resources in current namespace |
+| `kg` / `kgall` | `kubectl get` / `get all` | Inspect resources in current namespace |
 | `kgp` / `kgpw` / `kgpa` | `kubectl get pods` (`-o wide`, `-A`) | List pods (standard, wide, or all namespaces) |
 | `kgs` / `kgd` / `kgn` | `kubectl get svc / deploy / nodes -o wide` | Inspect services, deployments, or nodes |
 | `kge` | `kubectl get events --sort-by=.lastTimestamp` | View cluster events sorted chronologically |
 | `kaf` / `kdel` | `kubectl apply -f` / `kubectl delete` | Apply manifests or delete resources |
 | `kroll` / `krestart` | `kubectl rollout status / restart deploy` | Track or trigger deployment rollouts |
 | `ktop` / `ktopn` | `kubectl top pods` / `kubectl top nodes` | View pod and node resource consumption |
-| `gadc` | `gcloud auth application-default login` | Refresh Google Cloud Application Default Credentials |
-| `gproj` | `gcloud config set project` | Switch active GCP project |
-| `gctx` | `gcloud config configurations list` | List `gcloud` CLI configurations |
-| `tf` | `terraform` | Terraform shorthand |
 
 ---
 
@@ -108,26 +133,20 @@ Defined in [`shellconfig/funcs.sh`](shellconfig/funcs.sh) and [`shellconfig/alia
 | `scppath` | `scppath <file>` | Print full `user@ip:/abs/path` string ready for `scp` |
 | `weather` | `weather [city]` | Display terminal weather forecast via `wttr.in` |
 
-### Navigation, Git & Network Aliases
-* **Directory Navigation**: `..`, `...`, `....`, `-`, `l`, `la`, `ll`, `lt` (`tree -L 2 -C`)
-* **Git**: `g` (`git`), `gst` (`git status -sb`), `gco` (`git checkout`), `gcb` (`git checkout -b`), `gd` (`git diff`), `gds` (`git diff --staged`), `glg` (`git log --oneline --graph --decorate -n 20`), `gp` (`git push`), `gpl` (`git pull --rebase`), `gundo` (`git reset --soft HEAD~1`)
-* **Interactive Git (`forgit`)**: `ga` (`git add`), `gd` (interactive diff), `glo` (interactive log), `gi` (`.gitignore` generator)
-* **Networking**: `ports` (list all listening TCP ports), `myip` (fetch public IP), ` flushdns` (macOS DNS cache reset)
-* **JSON / YAML / Cat**: `j` (`jq`), `y` (`yq`), `cat` (`bat`)
-
 ---
 
-## Tmux Configuration
+## Ghostty & Tmux Configuration
 
-Configured in [`rc/tmux.conf`](rc/tmux.conf) with [`rc/blue.tmuxtheme`](rc/blue.tmuxtheme) and Tmux Plugin Manager (`tpm`):
+### Ghostty ([`rc/config/ghostty/config`](rc/config/ghostty/config))
+* **Font**: `MesloLGS NF` (size 13) with Nerd Font glyphs for Powerlevel10k.
+* **Focus Protection**: `desktop-notifications = false` so background coding agents never interrupt deep work.
+* **Split Keybindings**: `Cmd+D` (split right), `Cmd+Shift+D` (split down), `Cmd+[` / `Cmd+]` (navigate splits), `Cmd+Shift+Enter` (zoom current split).
 
+### Tmux ([`rc/tmux.conf`](rc/tmux.conf))
 * **Prefix**: `Ctrl-a` (as well as default `Ctrl-b`)
-* **Split Panes (preserves current directory)**:
-  * `Prefix + |` — Split horizontally
-  * `Prefix + -` — Split vertically
+* **Split Panes (preserves current directory)**: `Prefix + |` (horizontal) and `Prefix + -` (vertical)
 * **Navigate Panes**: `Alt + Arrow Keys` (no prefix required)
-* **Mouse Mode**: Toggle with `Prefix + m` (`on` by default)
-* **Synchronize Panes**: Toggle multi-pane broadcast input with `Prefix + y`
+* **Mouse & Sync Mode**: Toggle mouse with `Prefix + m`; toggle multi-pane broadcast with `Prefix + y`
 * **Reload Config**: `Prefix + r` reloads `~/.tmux.conf` live
 * **Truecolor & Scrollback**: 24-bit truecolor enabled (`Tc`) with a 50,000-line history buffer
 
@@ -139,7 +158,7 @@ To keep this repository clean and safe to share publicly, machine-specific or co
 
 * **`~/.zshrc.local`**: Automatically sourced at the end of `~/.zshrc` if present. Use this for private environment variables, internal aliases, or custom PATH entries.
 * **`~/.gitconfig.local`**: Included at the end of `~/.gitconfig`. Run `./setup_git_user.sh` to set your `user.name` and `user.email`, or add corporate `[url]` / `[http]` / credential helper overrides here.
-* **`~/.p10k.zsh`**: Customize your prompt appearance anytime by running `p10k configure` (writes directly to `~/.p10k.zsh` without modifying the tracked default in `rc/p10k.zsh` if replaced locally).
+* **`~/.p10k.zsh`**: Customize your prompt appearance anytime by running `p10k configure`.
 
 ---
 
@@ -147,12 +166,14 @@ To keep this repository clean and safe to share publicly, machine-specific or co
 
 ```
 dubodots/
+├── agents/              # Global agent instructions (AGENTS.md) & Claude Code settings
 ├── bin/                 # Helper scripts and utilities added to $PATH
 ├── completion/          # Shell completion scripts for Zsh & Bash (kubectx, kubens)
 ├── fonts/               # Monospaced Nerd Fonts (MesloLGS NF, Monaco NF, etc.)
 ├── rc/                  # Application runtime configs symlinked into $HOME (~/.zshrc, ~/.tmux.conf, etc.)
-│   └── config/          # Sub-configurations symlinked into ~/.config/ (git, htop, iterm2)
+│   └── config/          # Sub-configurations symlinked into ~/.config/ (ghostty, jj, git, htop)
 ├── shellconfig/         # Shared shell configuration modules for Zsh and Bash
+│   ├── agents.sh        # Agentic workflows (worktrees, jj, harness_init) & Cloud AI FDE helpers
 │   ├── aliases.sh       # Cross-platform Git, cloud, network, and navigation aliases
 │   ├── aliases_mac.sh   # macOS-specific aliases
 │   ├── exports.sh       # PATH, environment variables, and tool bindings
@@ -164,11 +185,13 @@ dubodots/
 ├── go_apps.sh           # Go developer binaries installer (go install)
 ├── osx_prefs.sh         # macOS user defaults and productivity tweaks
 ├── setup.sh             # Unified entry point script (auto-detects OS & architecture)
+├── setup_agents.sh      # obra/superpowers & AI coding agent configurator
 ├── setup_git_user.sh    # Interactive Git identity configuration script (~/.gitconfig.local)
-├── setup_links.sh       # Symlink generator for dotfiles, ~/.config, and terminal fonts
+├── setup_links.sh       # Symlink generator for dotfiles, ~/.config, and Ghostty
 ├── setup_mac.sh         # macOS orchestration pipeline
 ├── setup_linux.sh       # Linux orchestration pipeline
 ├── setup_tmux.sh        # Tmux & TPM plugin setup
 └── setup_zsh.sh         # Oh My Zsh, Powerlevel10k, and Zsh plugin installer
 ```
+
 

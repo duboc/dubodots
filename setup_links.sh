@@ -37,4 +37,10 @@ for FILE in "$SCRIPT_DIR/rc/"*; do
   fi
 done
 
+# On macOS, Ghostty also reads ~/Library/Application Support/com.mitchellh.ghostty/config.ghostty
+if [ "$(uname -s)" = "Darwin" ] && [ -f "$SCRIPT_DIR/rc/config/ghostty/config" ]; then
+  mkdir -p "$HOME/Library/Application Support/com.mitchellh.ghostty"
+  create_link "$SCRIPT_DIR/rc/config/ghostty/config" "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+fi
+
 echo "Link setup complete."
