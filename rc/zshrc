@@ -83,99 +83,18 @@ path=(
 )
 
 # ============================================================================
-# Aliases
+# Shared Aliases, Functions & Cloud Helpers (~/.dotfiles/shellconfig)
 # ============================================================================
-# DO NOT alias python/pip - let pyenv manage these
-# alias python=python3
-# alias pip=pip3
-
-# Common shortcuts
-alias ll='ls -lah'
-alias la='ls -A'
-alias l='ls -CF'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias dot='cd $HOME/.dotfiles'
-alias zshupd='$HOME/.dotfiles/setup_zsh.sh'
-command -v prettyping &>/dev/null && alias ping='prettyping'
-
-# Git aliases (if you want more than oh-my-zsh provides)
-alias gs='git status'
-alias gp='git pull'
-alias gc='git commit'
-alias gca='git commit -a'
-
-# Safety aliases
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
-
-# Kubernetes shortcuts
-alias k='kubectl'
-alias kgp='kubectl get pods'
-alias kgs='kubectl get services'
-alias kgd='kubectl get deployments'
-alias kns='kubens'
-alias kctx='kubectx'
-
-# ============================================================================
-# Functions
-# ============================================================================
-
-# Create directory and cd into it
-mkcd() {
-  mkdir -p "$1" && cd "$1"
-}
-
-# Quick find
-qfind() {
-  find . -name "*$1*"
-}
-
-# Extract various archive formats
-extract() {
-  if [ -f $1 ]; then
-    case $1 in
-      *.tar.bz2)   tar xjf $1     ;;
-      *.tar.gz)    tar xzf $1     ;;
-      *.bz2)       bunzip2 $1     ;;
-      *.rar)       unrar e $1     ;;
-      *.gz)        gunzip $1      ;;
-      *.tar)       tar xf $1      ;;
-      *.tbz2)      tar xjf $1     ;;
-      *.tgz)       tar xzf $1     ;;
-      *.zip)       unzip $1       ;;
-      *.Z)         uncompress $1  ;;
-      *.7z)        7z x $1        ;;
-      *)           echo "'$1' cannot be extracted via extract()" ;;
-    esac
-  else
-    echo "'$1' is not a valid file"
-  fi
-}
-
-# ============================================================================
-# Tool Initialization (Lazy Loading for Performance)
-# ============================================================================
-
-# NVM - Lazy load for faster shell startup
-export NVM_DIR="$HOME/.nvm"
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-  # Don't load nvm immediately, load on first use
-  nvm() {
-    unset -f nvm node npm
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-    nvm "$@"
-  }
-
-  node() {
-    unset -f nvm node npm
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-    node "$@"
-  }
+[ -f "$HOME/.dotfiles/shellconfig/funcs.sh" ] && source "$HOME/.dotfiles/shellconfig/funcs.sh"
+[ -f "$HOME/.dotfiles/shellconfig/aliases.sh" ] && source "$HOME/.dotfiles/shellconfig/aliases.sh"
+if [ "$(uname -s)" = "Darwin" ] && [ -f "$HOME/.dotfiles/shellconfig/aliases_mac.sh" ]; then
+  source "$HOME/.dotfiles/shellconfig/aliases_mac.sh"
 fi
+[ -f "$HOME/.dotfiles/shellconfig/kubernetes.sh" ] && source "$HOME/.dotfiles/shellconfig/kubernetes.sh"
+
+# ============================================================================
+# Tool Initialization
+# ============================================================================
 
 # pyenv - Properly initialize to enable Python version switching
 if command -v pyenv 1>/dev/null 2>&1; then
@@ -184,16 +103,22 @@ if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init -)"
 fi
 
+# direnv - Per-directory environment management
+if command -v direnv 1>/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+fi
+
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# Kubernetes helpers and completion
-if command -v kubectl &> /dev/null; then
-  if [ -f "$HOME/.dotfiles/shellconfig/kubernetes.sh" ]; then
-    source "$HOME/.dotfiles/shellconfig/kubernetes.sh"
-  else
-    source <(kubectl completion zsh)
-  fi
+# stern log tool completion
+if command -v stern &> /dev/null; then
+  source <(stern --completion=zsh)
+fi
+
+# helm completion
+if command -v helm &> /dev/null; then
+  source <(helm completion zsh)
 fi
 
 # ============================================================================

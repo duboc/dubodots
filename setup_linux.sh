@@ -1,73 +1,75 @@
 #!/bin/bash
+set -e
 
-DOTFILES=$HOME/.dotfiles
-cd $HOME
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$HOME"
 
-BASEPACKAGES="sudo openssh-client openssh-server curl wget git file dbus bc bash-completion hdparm sysstat less vim iptables ipset pciutils iperf3 net-tools jq haveged htop zsh tmux autojump neofetch lshw telnet iotop"
-DEBIANPACKAGES="locales ack-grep nfs-common apt-utils build-essential"
+BASEPACKAGES="sudo openssh-client openssh-server curl wget git file dbus bc bash-completion hdparm sysstat less vim iptables ipset pciutils iperf3 net-tools jq haveged htop zsh tmux autojump lshw telnet iotop tree ripgrep fd-find"
+DEBIANPACKAGES="locales ack nfs-common apt-utils build-essential"
 FEDORAPACKAGES="ack nfs-utils @development-tools"
 ALPINEPACKAGES="ack nfs-utils build-base"
 
 # Install Linux packages
-if [ $(cat /etc/os-release | grep -i "ID=debian") ] || [ $(cat /etc/os-release | grep -i "ID=ubuntu") ]; then
+if grep -qi "ID=debian\|ID=ubuntu" /etc/os-release 2>/dev/null; then
     sudo apt update
-    sudo apt upgrade
-    sudo apt install -y $BASEPACKAGES
-    sudo apt install -y $DEBIANPACKAGES
-fi
-if [ $(cat /etc/os-release | grep -i "ID=fedora") ]; then
-    sudo dnf update
-    sudo dnf upgrade
-    sudo dnf install -y $BASEPACKAGES
-    sudo dnf install -y $FEDORAPACKAGES
-fi
-if [ $(cat /etc/os-release | grep -i "ID=alpine") ]; then
+    sudo apt upgrade -y
+    sudo apt install -y $BASEPACKAGES $DEBIANPACKAGES
+elif grep -qi "ID=fedora" /etc/os-release 2>/dev/null; then
+    sudo dnf upgrade -y
+    sudo dnf install -y $BASEPACKAGES $FEDORAPACKAGES
+elif grep -qi "ID=alpine" /etc/os-release 2>/dev/null; then
     sudo apk update
-    sudo apk add $BASEPACKAGES
-    sudo apk add $ALPINEPACKAGES
+    sudo apk add $BASEPACKAGES $ALPINEPACKAGES
 fi
 
-# Install Golang
-GOVERSION=1.14.1
-ARCH=$(uname -m)
-case $ARCH in
-    x86_64*)
-        P_ARCH=amd64
-        ;;
-    aarch64*)
-        P_ARCH=arm64
-        ;;
-    arm*hf)
-        P_ARCH=armhf
-        ;;
-    *)
-        echo "Install golang error: missing arch '${ARCH}'" >&2
-        return 0
-        ;;
-esac
-curl -sL https://dl.google.com/go/go$GOVERSION.linux-$P_ARCH.tar.gz | tar xf - -C /usr/local
-export PATH=/usr/local/go/bin:$PATH
-echo "Installed Go version $GOVERSION for $P_ARCH"
-echo ""
+# Install Golang if not already present
+if ! command -v go &>/dev/null && [ ! -x "/usr/local/go/bin/go" ]; then
+    GOVERSION="$(curl -fsSL 'https://go.dev/VERSION?m=text' 2>/dev/null | head -n 1 || echo 'go1.24.1')"
+    ARCH="$(uname -m)"
+    case "$ARCH" in
+        x86_64*)  P_ARCH=amd64 ;;
+        aarch64*) P_ARCH=arm64 ;;
+        arm*hf)   P_ARCH=arm6l ;;
+        *)
+            echo "Install golang error: unsupported arch '${ARCH}'" >&2
+            P_ARCH=""
+            ;;
+    esac
+    if [ -n "$P_ARCH" ]; then
+        echo "Installing ${GOVERSION} for linux-${P_ARCH}..."
+        curl -fsSL "https://dl.google.com/go/${GOVERSION}.linux-${P_ARCH}.tar.gz" | sudo tar -xzf - -C /usr/local
+        export PATH="/usr/local/go/bin:$PATH"
+        echo "Installed ${GOVERSION} for ${P_ARCH}"
+        echo ""
+    fi
+else
+    echo "Go is already installed ($(command -v go || echo /usr/local/go/bin/go))."
+fi
 
 # Install Go applications
-bash -c $DOTFILES/go_apps.sh
-
-# Setup Git User Identity
-if [ -f "$DOTFILES/setup_git_user.sh" ]; then
-    bash "$DOTFILES/setup_git_user.sh"
+if [ -f "$SCRIPT_DIR/go_apps.sh" ]; then
+    bash "$SCRIPT_DIR/go_apps.sh"
 fi
 
-# Setup dotfiles
-bash -c $DOTFILES/setup_links.sh
+# Setup Git User Identity
+if [ -f "$SCRIPT_DIR/setup_git_user.sh" ]; then
+    bash "$SCRIPT_DIR/setup_git_user.sh"
+fi
+
+# Setup dotfiles links
+if [ -f "$SCRIPT_DIR/setup_links.sh" ]; then
+    bash "$SCRIPT_DIR/setup_links.sh"
+fi
 
 # Setup Zsh
-bash -c $DOTFILES/setup_zsh.sh
+if [ -f "$SCRIPT_DIR/setup_zsh.sh" ]; then
+    bash "$SCRIPT_DIR/setup_zsh.sh"
+fi
 
 # Setup Tmux
-bash -c $DOTFILES/setup_tmux.sh
-
-# Add user to passwordless sudo
-#sudo sed -i "%admin    ALL = (ALL) NOPASSWD:ALL"
+if [ -f "$SCRIPT_DIR/setup_tmux.sh" ]; then
+    bash "$SCRIPT_DIR/setup_tmux.sh"
+fi
 
 echo "Setup finished!"
+

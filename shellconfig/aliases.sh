@@ -44,13 +44,20 @@ fi
 alias screen='screen -RR'
 alias grep='grep --color=auto '
 alias sudo='sudo '
-alias p='ps aux | grep -v ]$'
+alias p="ps aux | grep -v ']$'"
 
 alias sc-dreload='sudo systemctl daemon-reload'
 
 # Git aliases
 alias gitchanges='find . -maxdepth 1 -mindepth 1 -type d -exec sh -c "(echo \"--------------- \n Repo: \"{} && cd {} && git status -s && echo)" \;'
-alias gs='git s -u'
+alias gs='git status'
+alias gss='git s -u'
+alias gp='git pull'
+alias gc='git commit'
+alias gca='git commit -a'
+alias gco='git checkout'
+alias gb='git branch'
+alias gd='git diff'
 alias gr='git remote -v'
 alias glo='git l'
 alias gcs='git commit -v -s'
@@ -65,13 +72,21 @@ alias tm='tmux new -A -s mySession'
 alias yaegi='rlwrap yaegi'
 alias dot='cd $HOME/.dotfiles'
 alias query-manifest='qi'
-alias tree='tree -I "out|node_modules|vendor|build"'
+alias tree='tree -I "out|node_modules|vendor|build|.git"'
 
+# Network & Port Diagnostics
 alias sniffapp="lsof -i 4tcp"
+alias ports="lsof -iTCP -sTCP:LISTEN -P -n"
+alias myip="curl -fsSL https://ifconfig.me && echo"
 command -v prettyping &>/dev/null && alias ping='prettyping'
 
-# Google Cloud Aliases
+# Cloud & Infrastructure Aliases
 alias g='gcloud'
 alias gauth='gcloud auth login'
+alias gadc='gcloud auth application-default login'
 alias gconfig='gcloud config set project'
+alias gproj='gcloud config get-value project'
+alias gctx='gcloud config configurations list'
+alias tf='terraform'
+
 
