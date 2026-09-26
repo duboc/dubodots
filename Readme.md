@@ -36,9 +36,9 @@ Each setup stage is modular and idempotent, so you can run individual scripts an
 
 | Script | Description |
 | :--- | :--- |
-| `./setup.sh` | Full end-to-end setup for macOS or Linux |
+| `./setup.sh` | Full end-to-end base setup for macOS or Linux |
 | `./setup_links.sh` | Creates/updates symlinks in `~`, `~/.config/` (Ghostty, Jujutsu, Git, htop) |
-| `./setup_agents.sh` | Installs/updates [`obra/superpowers`](https://github.com/obra/superpowers) and configures Antigravity, Gemini CLI, and Claude Code |
+| `./setup_agents.sh` | **Optional:** Installs/configures [`obra/superpowers`](https://github.com/obra/superpowers), Claude Code (`--claude`), and/or Antigravity (`--antigravity`) |
 | `./setup_zsh.sh` | Installs/updates Oh My Zsh, Powerlevel10k, and Zsh plugins |
 | `./setup_tmux.sh` | Installs/updates Tmux Plugin Manager (`tpm`) and Tmux plugins |
 | `./setup_git_user.sh` | Configures your Git `user.name` and `user.email` in `~/.gitconfig.local` |
@@ -50,11 +50,26 @@ Each setup stage is modular and idempotent, so you can run individual scripts an
 
 Configured via [`setup_agents.sh`](setup_agents.sh), [`agents/AGENTS.md`](agents/AGENTS.md), and [`shellconfig/agents.sh`](shellconfig/agents.sh).
 
-### 1. Multi-Harness `obra/superpowers` Integration
-Running `./setup_agents.sh` clones [`obra/superpowers`](https://github.com/obra/superpowers) into `~/.local/share/superpowers` and wires its 15 core skills (`brainstorming`, `using-git-worktrees`, `writing-plans`, `subagent-driven-development`, `executing-plans`, `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `dispatching-parallel-agents`, etc.) across all major agent harnesses:
-* **Antigravity**: Installed as a plugin in `~/.gemini/config/plugins/superpowers` with `always_on` bootstrap rules in `~/.gemini/config/rules/superpowers.md` and `~/.gemini/config/rules/global-engineering.md`.
-* **Gemini CLI & Universal `.agents`**: Symlinked into `~/.gemini/skills/` and `~/.agents/skills/` with `~/.gemini/GEMINI.md` configured.
-* **Claude Code**: Symlinked into `~/.claude/skills/` with `~/.claude/CLAUDE.md` and privacy-hardened `~/.claude/settings.json`.
+### 1. Optional Multi-Harness `obra/superpowers` Integration
+Agent configurations are **opt-in** so you can enable only the harnesses permitted on a given machine:
+
+```sh
+# Configure Claude Code (~/.claude + obra/superpowers)
+./setup_agents.sh --claude
+
+# Configure Antigravity & Gemini CLI (~/.gemini + obra/superpowers)
+./setup_agents.sh --antigravity
+
+# Configure both
+./setup_agents.sh --all
+
+# Remove all installed agent configurations and obra/superpowers
+./setup_agents.sh --uninstall
+```
+
+When enabled, `./setup_agents.sh` clones [`obra/superpowers`](https://github.com/obra/superpowers) into `~/.local/share/superpowers` and wires its 15 core skills (`brainstorming`, `using-git-worktrees`, `writing-plans`, `subagent-driven-development`, `executing-plans`, `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `dispatching-parallel-agents`, etc.) for the selected target(s):
+* **Antigravity (`--antigravity`)**: Installed as a plugin in `~/.gemini/config/plugins/superpowers` with `always_on` bootstrap rules in `~/.gemini/config/rules/superpowers.md` and `~/.gemini/config/rules/global-engineering.md`, plus `~/.gemini/skills/` and `~/.agents/skills/`.
+* **Claude Code (`--claude`)**: Symlinked into `~/.claude/skills/` with `~/.claude/CLAUDE.md` and privacy-hardened `~/.claude/settings.json` (and installs `claude-code` via Homebrew Cask on macOS if not present).
 
 ### 2. Git Worktrees, Jujutsu (`jj`) & Harness Engineering
 Inspired by Mitchell Hashimoto's *"My AI Adoption Journey"* (separate planning from execution, engineer the harness, run background agents in isolated worktrees without desktop notification interruptions):

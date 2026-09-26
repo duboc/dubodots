@@ -90,9 +90,11 @@ if [ -f "$SCRIPT_DIR/setup_tmux.sh" ]; then
     bash "$SCRIPT_DIR/setup_tmux.sh"
 fi
 
-# Setup AI Coding Agents & obra/superpowers
-if [ -f "$SCRIPT_DIR/setup_agents.sh" ]; then
-    bash "$SCRIPT_DIR/setup_agents.sh"
+# Optional: Setup AI Coding Agents & obra/superpowers only when explicitly requested
+if [ "${INSTALL_AGENTS:-0}" = "1" ] || [ "${INSTALL_CLAUDE:-0}" = "1" ] || [ "${INSTALL_ANTIGRAVITY:-0}" = "1" ]; then
+    if [ -f "$SCRIPT_DIR/setup_agents.sh" ]; then
+        bash "$SCRIPT_DIR/setup_agents.sh"
+    fi
 fi
 
 # Setup macOS preferences
