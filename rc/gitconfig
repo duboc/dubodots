@@ -89,10 +89,6 @@
     enabled = true
     autoupdate = true
 
-[branch "master"]
-  remote = origin
-  merge = refs/heads/master
-
 [submodule "*"]
   ignore = dirty
 
@@ -122,9 +118,6 @@
   smudge = git lfs smudge %f
   required = true
 
-[credential]
-	helper = store
-
 [mergetool "kdiff3"]
   path = kdiff3
   trustExitCode = false
@@ -147,8 +140,3 @@
 [rebase]
   autoStash = true
 
-[sendemail]
-  ; setup for using git send-email; prompts for password
-  smtpserver = smtp.googlemail.com
-  smtpencryption = tls
-  smtpserverport = 587

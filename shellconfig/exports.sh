@@ -1,8 +1,8 @@
 # Larger bash history
-export HISTSIZE=50000000;
+export HISTSIZE=64000;
 export HISTFILESIZE=$HISTSIZE;
 export HISTCONTROL=ignoredups;
-export HISTIGNORE=" *:ls:cd:cd -:pwd:exit:date:* --help:* -h:history*";
+export HISTIGNORE="ls:cd:cd -:pwd:exit:date:* --help:* -h:history*";
 export HISTTIMEFORMAT="%d/%m/%y %T "
 
 # Prefer US English and use UTF-8
@@ -37,9 +37,14 @@ elif [ -x "/usr/local/bin/brew" ]; then
 fi
 
 # Additional PATH exports
-export PATH="$HOME/.dotfiles/bin:$PATH"
 [ -d "/opt/homebrew/opt/coreutils/libexec/gnubin" ] && export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
 [ -d "/usr/local/opt/coreutils/libexec/gnubin" ] && export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+
+# Preserve system /usr/local/go and /usr/local/git priority if installed
+[ -d "/usr/local/go/bin" ] && export PATH="/usr/local/go/bin:$PATH"
+[ -d "/usr/local/git/current/bin" ] && export PATH="/usr/local/git/current/bin:$PATH"
+
+export PATH="$HOME/.dotfiles/bin:$PATH"
 
 ## Golang path
 export GOPATH=$HOME/go
@@ -50,5 +55,7 @@ if [ -f /usr/libexec/java_home ]; then
     export JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null)
 fi
 
-# Google Cloud / Kubernetes
+# Kubernetes GKE auth plugin
 export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+
+

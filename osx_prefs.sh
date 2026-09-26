@@ -54,11 +54,26 @@ chflags nohidden ~/Library 2>/dev/null || true
 if defaults read com.googlecode.iterm2 >/dev/null 2>&1; then
     echo "Configuring iTerm2 default font to MesloLGS NF..."
     defaults write com.googlecode.iterm2 "Normal Font" -string "MesloLGS-NF-Regular 13" 2>/dev/null || true
+    if [ -f "$HOME/Library/Preferences/com.googlecode.iterm2.plist" ]; then
+        /usr/libexec/PlistBuddy -c "Set ':New Bookmarks:0:Normal Font' 'MesloLGS-NF-Regular 13'" "$HOME/Library/Preferences/com.googlecode.iterm2.plist" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Set ':New Bookmarks:0:Non Ascii Font' 'MesloLGS-NF-Regular 13'" "$HOME/Library/Preferences/com.googlecode.iterm2.plist" 2>/dev/null || \
+        /usr/libexec/PlistBuddy -c "Add ':New Bookmarks:0:Non Ascii Font' string 'MesloLGS-NF-Regular 13'" "$HOME/Library/Preferences/com.googlecode.iterm2.plist" 2>/dev/null || true
+    fi
+fi
+
+# Terminal: Set default font for Ghostty if present and not yet configured
+GHOSTTY_CONFIG="$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+if [ -d "/Applications/Ghostty.app" ] && [ -f "$GHOSTTY_CONFIG" ]; then
+    if ! grep -q "font-family" "$GHOSTTY_CONFIG" 2>/dev/null; then
+        echo "Configuring Ghostty default font to MesloLGS NF..."
+        echo 'font-family = "MesloLGS NF"' >> "$GHOSTTY_CONFIG"
+    fi
 fi
 
 echo "Restarting UI services to apply changes..."
-for app in Finder Dock; do
+for app in Finder Dock cfprefsd; do
     killall "$app" >/dev/null 2>&1 || true
 done
 
 echo "MacOS preferences applied successfully."
+

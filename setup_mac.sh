@@ -43,7 +43,15 @@ if [ -f "$SCRIPT_DIR/Brewfile" ]; then
     brew bundle install --file "$SCRIPT_DIR/Brewfile"
 fi
 
-if [ -f "$SCRIPT_DIR/Brewfile-casks-store" ]; then
+# Install Go via Homebrew only if not already provided on the system
+if ! command -v go &>/dev/null && [ ! -x "/usr/local/go/bin/go" ]; then
+    echo "Go not detected on system, installing via Homebrew..."
+    brew install go
+else
+    echo "Go is already installed ($(command -v go || echo /usr/local/go/bin/go))."
+fi
+
+if [ "${INSTALL_CASKS:-0}" = "1" ] && [ -f "$SCRIPT_DIR/Brewfile-casks-store" ]; then
     echo "Installing Casks..."
     brew bundle install --file "$SCRIPT_DIR/Brewfile-casks-store" || echo "Note: Skipping optional casks that require manual installation or are already installed."
 fi
@@ -82,21 +90,18 @@ if [ -f "$SCRIPT_DIR/osx_prefs.sh" ]; then
     bash "$SCRIPT_DIR/osx_prefs.sh"
 fi
 
-# Add TouchID authentication to Sudo using pam_tid.so (prefers macOS sudo_local if available)
-echo "Configuring TouchID for sudo (if supported)..."
-if [ -f /etc/pam.d/sudo_local.template ] && [ ! -f /etc/pam.d/sudo_local ]; then
-    echo "Setting up /etc/pam.d/sudo_local for TouchID..."
+# Add TouchID authentication to Sudo using pam_tid.so (only when /etc/pam.d/sudo includes sudo_local)
+if [ -f /etc/pam.d/sudo_local.template ] && [ ! -f /etc/pam.d/sudo_local ] && grep -q "sudo_local" /etc/pam.d/sudo 2>/dev/null; then
+    echo "Configuring TouchID for sudo via /etc/pam.d/sudo_local..."
     sudo cp /etc/pam.d/sudo_local.template /etc/pam.d/sudo_local
     sudo sed -i '' 's/#auth       sufficient     pam_tid.so/auth       sufficient     pam_tid.so/' /etc/pam.d/sudo_local
-elif [ -f /etc/pam.d/sudo ] && ! grep -q "pam_tid.so" /etc/pam.d/sudo; then
-    echo "Adding pam_tid.so to /etc/pam.d/sudo..."
-    echo -e "auth       sufficient     pam_tid.so\n$(cat /etc/pam.d/sudo)" | sudo tee /etc/pam.d/sudo >/dev/null
 fi
 
 echo ""
 echo "Setup finished!"
 echo "NEXT STEPS:"
-echo "1. Run 'gcloud auth login' to set up Google Cloud SDK if needed."
-echo "2. Run 'gcloud auth application-default login' if you need ADC."
-echo "3. Restart your terminal to apply all Zsh changes."
+echo "1. If your login shell is not yet Zsh, run 'chsh -s /bin/zsh' in your terminal."
+echo "2. Restart your terminal to apply all Zsh changes."
+
+
 

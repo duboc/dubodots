@@ -2,47 +2,36 @@
 
 echo "Starting Tmux setup"
 echo ""
-DOTFILES=$HOME/.dotfiles
-pushd $HOME
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DOTFILES="${DOTFILES:-$SCRIPT_DIR}"
+pushd "$HOME" >/dev/null
 
 tmuxcommand=tmux
-if [ -x "$(command $tmuxcommand --version)" ] 2> /dev/null 2>&1; then
-    if [ $(uname) == "Darwin" ]; then
-        echo "Checking if Homebrew is installed"
-        echo ""
-        if [[ $(command -v brew) == "" ]]; then
-            echo "Homebrew not installed, installing..."
-            /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-            echo ""
-        fi
-
-        # Install tmux on Mac
-        echo "$tmuxcommand not installed, installing..."
-        brew install $tmuxcommand
+if ! command -v "$tmuxcommand" &>/dev/null; then
+    if [ "$(uname)" == "Darwin" ]; then
+        echo "Note: $tmuxcommand is not installed. Please install it via your preferred package manager."
     else
         # Install tmux on Linux
-        if [ $(cat /etc/os-release | grep -i "ID=debian") ] || [ $(cat /etc/os-release | grep -i "ID=ubuntu") ]; then
+        if grep -qi "debian\|ubuntu" /etc/os-release 2>/dev/null; then
             sudo apt update
-            sudo apt install -y $tmuxcommand
-        fi
-        if [ $(cat /etc/os-release | grep -i "ID=fedora") ]; then
-            sudo dnf install -y $tmuxcommand
+            sudo apt install -y "$tmuxcommand"
+        elif grep -qi "fedora" /etc/os-release 2>/dev/null; then
+            sudo dnf install -y "$tmuxcommand"
         fi
     fi
 fi
-
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-DOTFILES="${DOTFILES:-$SCRIPT_DIR}"
 
 if [ -f "$DOTFILES/setup_links.sh" ]; then
     bash "$DOTFILES/setup_links.sh"
 fi
 
-echo "Install .tmux"
+echo "Installing/updating Tmux Plugin Manager (tpm)..."
 if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
-    git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
+    git clone --depth 1 https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
 else
-    echo "You already have the .tmux, updating..."
-    pushd $HOME/.tmux/plugins/tpm; git pull; popd
+    echo "tpm is already installed, updating..."
+    (cd "$HOME/.tmux/plugins/tpm" && git pull)
 fi
+popd >/dev/null
+
 

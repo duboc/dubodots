@@ -1,12 +1,14 @@
 # Setup fzf
 # ---------
-if [ ! -x "$(command -v fzf)" ] > /dev/null 2>&1; then
-    echo "Error: fzf binary not installed. Use go_apps.sh script to install."
+if [[ ! "$PATH" == *"$HOME/.fzf/bin"* ]] && [[ -d "$HOME/.fzf/bin" ]]; then
+    PATH="${PATH:+${PATH}:}$HOME/.fzf/bin"
+fi
+
+if ! command -v fzf &>/dev/null; then
     return
 fi
 
 if [[ ! -d "$HOME/.fzf" ]]; then
-    echo "Error: .fzf directory not installed. Use setup_zsh.sh script to install."
     return
 fi
 
@@ -17,3 +19,4 @@ fi
 # Key bindings
 # ------------
 source "$HOME/.fzf/shell/key-bindings.bash"
+

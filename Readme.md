@@ -5,10 +5,13 @@ A modular, cross-platform collection of dotfiles, shell scripts, and system conf
 ## Features & Design Principles
 
 * **Cross-Platform & Architecture Aware**: Automatically resolves Homebrew paths (`/opt/homebrew` on Apple Silicon vs `/usr/local` on Intel macOS / Linux).
+* **Enterprise & Managed Environment Safe**: Preserves system-provided `/bin/zsh`, `/etc/zshrc`, `/usr/local/git`, and `/usr/local/go` precedence, installs Oh My Zsh and plugins directly via `git clone` without `curl | sh` execution, and avoids storing plaintext Git credentials.
 * **Least-Privilege & User-Space Priority**: Installs custom fonts into user directories (`~/Library/Fonts`) without requiring root access or `sudo`.
 * **Idempotent & Non-Destructive**: Safe to re-run anytime. Preserves existing `.config/` directories when linking custom application configs.
 * **Modern Tooling & Up-to-Date Sources**: Uses `go install` for Go binaries, maintained Zsh plugins (e.g., `zdharma-continuum`), and current Oh My Zsh repositories.
-* **Touch ID for Sudo (macOS)**: Integrates Touch ID authentication using `/etc/pam.d/sudo_local`, preserving system compatibility across OS upgrades.
+* **Touch ID for Sudo (macOS)**: Integrates Touch ID authentication using `/etc/pam.d/sudo_local` when supported by `/etc/pam.d/sudo`, preserving system compatibility across OS upgrades.
+
+
 
 ## Installation
 

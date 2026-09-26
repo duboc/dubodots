@@ -33,15 +33,19 @@ if ! command -v zsh &>/dev/null; then
     fi
 fi
 
-# Set default shell if needed (macOS default shell is already /bin/zsh)
-ZSH_PATH="$(which zsh)"
+# Set default shell if needed (prefer system /bin/zsh on macOS)
+if [ "$(uname)" == "Darwin" ] && [ -x "/bin/zsh" ]; then
+    ZSH_PATH="/bin/zsh"
+else
+    ZSH_PATH="$(which zsh)"
+fi
 CURRENT_SHELL="$(dscl . -read /Users/$USER UserShell 2>/dev/null | awk '{print $2}')"
-if [ "$CURRENT_SHELL" != "$ZSH_PATH" ] && [ "$CURRENT_SHELL" != "/bin/zsh" ]; then
+if [ -n "$CURRENT_SHELL" ] && [ "$CURRENT_SHELL" != "$ZSH_PATH" ] && [ "$CURRENT_SHELL" != "/bin/zsh" ]; then
     echo "Current shell is $CURRENT_SHELL. Attempting to change default shell to $ZSH_PATH..."
     if [ -t 0 ]; then
-        chsh -s "$ZSH_PATH" || sudo chsh -s "$ZSH_PATH" "$USER" || true
+        chsh -s "$ZSH_PATH" || echo "Note: To change default shell to zsh, run: chsh -s $ZSH_PATH"
     else
-        sudo chsh -s "$ZSH_PATH" "$USER" 2>/dev/null || echo "Note: To change default shell to zsh, run: sudo chsh -s $ZSH_PATH $USER"
+        echo "Note: Non-interactive shell detected. To change default shell to zsh, run: chsh -s $ZSH_PATH"
     fi
 fi
 
@@ -49,7 +53,7 @@ fi
 echo ""
 echo "Installing/Updating Oh My Zsh..."
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    git clone --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.oh-my-zsh"
 else
     echo "Oh My Zsh is already installed, updating..."
     (cd "$HOME/.oh-my-zsh" && git pull --rebase --autostash)
@@ -59,10 +63,11 @@ echo ""
 echo "Checking fzf configuration..."
 if [ ! -d "$HOME/.fzf" ]; then
     git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf"
-    "$HOME/.fzf/install" --all --no-bash --no-fish || true
+    "$HOME/.fzf/install" --bin || true
 else
     echo "Updating fzf..."
     (cd "$HOME/.fzf" && git pull --depth 1)
+    "$HOME/.fzf/install" --bin || true
 fi
 
 echo ""
@@ -92,16 +97,19 @@ for t in "${themes[@]}"; do
     echo "Checking theme $theme_name..."
     if [ ! -d "$ZSH_CUSTOM/themes/$theme_name" ]; then
         echo "Installing $theme_name..."
-        git clone "$t" "$ZSH_CUSTOM/themes/$theme_name"
+        git clone --depth 1 "$t" "$ZSH_CUSTOM/themes/$theme_name"
     else
         echo "Updating $theme_name..."
         (cd "$ZSH_CUSTOM/themes/$theme_name" && git pull)
     fi
+    if [ -x "$ZSH_CUSTOM/themes/$theme_name/gitstatus/install" ]; then
+        echo "Ensuring gitstatusd binary is installed for $theme_name..."
+        "$ZSH_CUSTOM/themes/$theme_name/gitstatus/install" || true
+    fi
 done
 
-# Active plugins array (fixed zdharma-continuum URL)
+# Active plugins array (explicitly updated via setup_zsh.sh, no background auto-pulling)
 plugins=(
-    "https://github.com/TamCore/autoupdate-oh-my-zsh-plugins"
     "https://github.com/zsh-users/zsh-autosuggestions"
     "https://github.com/zdharma-continuum/fast-syntax-highlighting"
     "https://github.com/zsh-users/zsh-completions"
@@ -117,7 +125,7 @@ for p in "${plugins[@]}"; do
     plugin_names+=("$plugin_name")
     echo "Installing/updating plugin $plugin_name..."
     if [ ! -d "$ZSH_CUSTOM/plugins/$plugin_name" ]; then
-        git clone "$p" "$ZSH_CUSTOM/plugins/$plugin_name"
+        git clone --depth 1 "$p" "$ZSH_CUSTOM/plugins/$plugin_name"
     else
         (cd "$ZSH_CUSTOM/plugins/$plugin_name" && git pull --rebase --autostash)
     fi
@@ -147,13 +155,19 @@ if [ -d "$ZSH_CUSTOM/plugins" ]; then
 fi
 
 echo ""
-echo "Updating kubectx / kubens..."
+echo "Checking kubectx / kubens..."
 mkdir -p "$SCRIPT_DIR/bin" "$SCRIPT_DIR/completion"
 for X in kubectx kubens; do
-    curl -sL -o "$SCRIPT_DIR/bin/$X" "https://raw.githubusercontent.com/ahmetb/kubectx/master/$X"
+    if [ ! -f "$SCRIPT_DIR/bin/$X" ]; then
+        curl -sL -o "$SCRIPT_DIR/bin/$X" "https://raw.githubusercontent.com/ahmetb/kubectx/master/$X"
+    fi
     chmod +x "$SCRIPT_DIR/bin/$X"
-    curl -sL -o "$SCRIPT_DIR/completion/$X.bash" "https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/$X.bash"
-    curl -sL -o "$SCRIPT_DIR/completion/$X.zsh" "https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/$X.zsh"
+    if [ ! -f "$SCRIPT_DIR/completion/$X.bash" ]; then
+        curl -sL -o "$SCRIPT_DIR/completion/$X.bash" "https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/$X.bash"
+    fi
+    if [ ! -f "$SCRIPT_DIR/completion/$X.zsh" ]; then
+        curl -sL -o "$SCRIPT_DIR/completion/$X.zsh" "https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/$X.zsh"
+    fi
     chmod +x "$SCRIPT_DIR/completion/$X.bash" "$SCRIPT_DIR/completion/$X.zsh"
 done
 

@@ -5,14 +5,15 @@ if [ -x "/opt/homebrew/bin/brew" ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+# Include /usr/local/go/bin if present
+if [ -d "/usr/local/go/bin" ]; then
+    export PATH="/usr/local/go/bin:$PATH"
+fi
+
 export PATH="$(go env GOPATH 2>/dev/null || echo "$HOME/go")/bin:$PATH"
 
 # Only run if Go is present
 if command -v go &>/dev/null; then
-
-    # Github Hub
-    echo "Installing Github hub..."
-    go install github.com/github/hub@latest || true
 
     # Command line two-factor authentication
     echo "Installing 2fa..."
@@ -28,3 +29,4 @@ if command -v go &>/dev/null; then
 else
     echo "Go is not installed or not in PATH. Skipping Go apps setup."
 fi
+

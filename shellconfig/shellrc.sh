@@ -36,41 +36,40 @@ export WASMER_DIR="$HOME/.wasmer"
 [ -s "$WASMER_DIR/wasmer.sh" ] && source "$WASMER_DIR/wasmer.sh"  # This loads wasmer
 
 # Use gitstatusd built locally if exists
-# To build, run `zsh -c "$(curl -fsSL https://raw.githubusercontent.com/romkatv/gitstatus/master/build.zsh)"`
-if command -v $HOME/.dotfiles/bin/gitstatusd-linux-`uname -m` &> /dev/null; then
-    GITSTATUS_DAEMON=$HOME/.dotfiles/bin/gitstatusd-linux-`uname -m`
+if command -v "$HOME/.dotfiles/bin/gitstatusd-linux-$(uname -m)" &> /dev/null; then
+    GITSTATUS_DAEMON="$HOME/.dotfiles/bin/gitstatusd-linux-$(uname -m)"
 fi
 
 # Load fzf plugin. Installed thru setup_zsh.sh
 [ -f ~/.fzf.${shell} ] && source ~/.fzf.${shell}
 
 # Kubernetes
-if [ -x "$(command -v kubectl)" ] > /dev/null 2>&1; then
+if command -v kubectl &>/dev/null; then
   source ~/.dotfiles/shellconfig/kubernetes.sh
 fi
 
-# Load hub (https://github.com/github/hub)
-if [ -x "$(command -v hub)" ]; then
-  eval "$(hub alias -s)"
-fi
-
 # Load stern log tool completion
-if [ -x "$(command -v stern)" ] > /dev/null 2>&1; then
-  source <(stern --completion=$(ps -p $$ -oargs= |tr -d "-"))
+if command -v stern &>/dev/null && [ -n "${shell}" ]; then
+  source <(stern --completion="${shell}")
 fi
 
-# Load iTerm2 integration
-[ -f ${HOME}/.dotfiles/shellconfig/iterm2_shell_integration.${shell} ] && source ${HOME}/.dotfiles/shellconfig/iterm2_shell_integration.${shell}
+# Load iTerm2 integration only inside iTerm2 and when bash extdebug is not enabled
+if [ "$TERM_PROGRAM" = "iTerm.app" ] && [ -f "${HOME}/.dotfiles/shellconfig/iterm2_shell_integration.${shell}" ]; then
+  if [ "${shell}" != "bash" ] || ! shopt -q extdebug 2>/dev/null; then
+    source "${HOME}/.dotfiles/shellconfig/iterm2_shell_integration.${shell}"
+  fi
+fi
 
 #####
 # These are at the end to print on user login
 #####
 
 
-if tmux list-sessions > /dev/null 2>&1; then
+if command -v tmux &>/dev/null && tmux list-sessions > /dev/null 2>&1; then
     echo ""
     echo "There are TMux sessions running:"
     echo ""
     tmux list-sessions
     echo ""
 fi
+

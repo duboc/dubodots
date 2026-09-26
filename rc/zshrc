@@ -17,8 +17,14 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git)
 
 # Add optional plugins if installed
+[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-completions" ]] && fpath+="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-completions/src"
+[[ -d "$HOME/.dotfiles/completion" ]] && fpath+="$HOME/.dotfiles/completion"
 [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]] && plugins+=(zsh-autosuggestions)
+[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting" ]] && plugins+=(fast-syntax-highlighting)
 [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]] && plugins+=(zsh-syntax-highlighting)
+[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-history-substring-search" ]] && plugins+=(zsh-history-substring-search)
+[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-you-should-use" ]] && plugins+=(zsh-you-should-use)
+[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/forgit" ]] && plugins+=(forgit)
 [[ -d "$ZSH/plugins/kubectl" ]] && plugins+=(kubectl)
 [[ -d "$ZSH/plugins/history-substring-search" ]] && plugins+=(history-substring-search)
 [[ -d "$ZSH/plugins/sudo" ]] && plugins+=(sudo)
@@ -30,8 +36,8 @@ source $ZSH/oh-my-zsh.sh
 # ============================================================================
 # History Configuration
 # ============================================================================
-HISTSIZE=50000
-SAVEHIST=50000
+HISTSIZE=64000
+SAVEHIST=64000
 HISTFILE=~/.zsh_history
 setopt EXTENDED_HISTORY          # Write timestamp to history
 setopt INC_APPEND_HISTORY        # Write to history immediately
@@ -39,7 +45,6 @@ setopt SHARE_HISTORY             # Share history across sessions
 setopt HIST_IGNORE_DUPS          # Don't record duplicates
 setopt HIST_IGNORE_ALL_DUPS      # Delete old duplicates
 setopt HIST_FIND_NO_DUPS         # Don't show duplicates in search
-setopt HIST_IGNORE_SPACE         # Don't record commands starting with space
 setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks
 setopt HIST_VERIFY               # Show command with history expansion before running
 
@@ -47,10 +52,8 @@ setopt HIST_VERIFY               # Show command with history expansion before ru
 # Environment Variables
 # ============================================================================
 export USE_GKE_GCLOUD_AUTH_PLUGIN=True
-export CLAUDE_CODE_USE_VERTEX=1
-export CLOUD_ML_REGION=us-east5
-export ANTHROPIC_VERTEX_PROJECT_ID=conventodapenha
 export VIRTUAL_ENV_DISABLE_PROMPT=1
+export GOPATH="$HOME/go"
 
 # Editor preferences
 export EDITOR='vim'
@@ -62,16 +65,15 @@ export VISUAL='vim'
 typeset -U path  # Automatically deduplicate PATH entries
 
 path=(
-  $HOME/.antigravity/antigravity/bin
-  $HOME/.jetski/jetski/bin
-  $HOME/.codeium/windsurf/bin
   $HOME/.local/bin
-  $HOME/Library/Python/3.9/bin
+  $HOME/.dotfiles/bin
+  $GOPATH/bin
+  /usr/local/git/current/bin
+  /usr/local/go/bin
   /opt/homebrew/opt/fzf/bin
   /opt/homebrew/bin
-  /usr/local/go/bin
+  /opt/homebrew/sbin
   /usr/local/bin
-  /usr/local/git/current/bin
   /usr/bin
   /bin
   /usr/local/sbin
@@ -93,6 +95,9 @@ alias la='ls -A'
 alias l='ls -CF'
 alias ..='cd ..'
 alias ...='cd ../..'
+alias dot='cd $HOME/.dotfiles'
+alias zshupd='$HOME/.dotfiles/setup_zsh.sh'
+command -v prettyping &>/dev/null && alias ping='prettyping'
 
 # Git aliases (if you want more than oh-my-zsh provides)
 alias gs='git status'
@@ -110,6 +115,8 @@ alias k='kubectl'
 alias kgp='kubectl get pods'
 alias kgs='kubectl get services'
 alias kgd='kubectl get deployments'
+alias kns='kubens'
+alias kctx='kubectx'
 
 # ============================================================================
 # Functions
@@ -168,13 +175,6 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
     node "$@"
   }
-
-#  npm() {
-#    unset -f nvm node npm
-#    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-#    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-#    npm "$@"
-#  }
 fi
 
 # pyenv - Properly initialize to enable Python version switching
@@ -187,9 +187,13 @@ fi
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# kubectl completion (modern approach)
+# Kubernetes helpers and completion
 if command -v kubectl &> /dev/null; then
-  source <(kubectl completion zsh)
+  if [ -f "$HOME/.dotfiles/shellconfig/kubernetes.sh" ]; then
+    source "$HOME/.dotfiles/shellconfig/kubernetes.sh"
+  else
+    source <(kubectl completion zsh)
+  fi
 fi
 
 # ============================================================================

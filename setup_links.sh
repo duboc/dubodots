@@ -16,6 +16,11 @@ create_link() {
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Ensure ~/.dotfiles points to this repository if cloned elsewhere
+if [ "$SCRIPT_DIR" != "$HOME/.dotfiles" ]; then
+  create_link "$SCRIPT_DIR" "$HOME/.dotfiles"
+fi
+
 # Link .rc files
 for FILE in "$SCRIPT_DIR/rc/"*; do
   filename="$(basename "$FILE")"

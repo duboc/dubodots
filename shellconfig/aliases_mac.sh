@@ -2,21 +2,22 @@
 # Only for Mac OSX
 #------------------------------------------////
 
-alias brewupd='brew update && brew upgrade && brew cask upgrade && brew cleanup'
+alias brewupd='brew update && brew upgrade && brew cleanup'
 alias brewdeps='brew list -1 | while read cask; do echo -ne "\x1B[1;34m $cask \x1B[0m"; brew uses $cask --installed | awk '"'"'{printf(" %s ", $0)}'"'"'; echo ""; done'
 
-# Use GNU utils as default
-alias indent='gindent'
-alias sed='gsed'
-alias tar='gtar'
-alias make='gmake'
-alias grep='ggrep'
-alias which='gwhich'
+# Use GNU utils as default only if installed
+command -v gindent &>/dev/null && alias indent='gindent'
+command -v gsed &>/dev/null && alias sed='gsed'
+command -v gtar &>/dev/null && alias tar='gtar'
+command -v gmake &>/dev/null && alias make='gmake'
+command -v ggrep &>/dev/null && alias grep='ggrep'
+command -v gwhich &>/dev/null && alias which='gwhich'
 
 # Quicklook file. Depends on osx plugin from zsh oh-my-zsh
 alias ql='quick-look'
 
-alias cat='bat --italic-text=always -p --pager "less -rX"'
+command -v bat &>/dev/null && alias cat='bat --italic-text=always -p --pager "less -rX"'
+
 
 # Recursively delete `.DS_Store` files
 alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
