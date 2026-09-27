@@ -22,6 +22,25 @@ elif grep -qi "ID=alpine" /etc/os-release 2>/dev/null; then
     sudo apk add $BASEPACKAGES $ALPINEPACKAGES
 fi
 
+# Install agentic workflow CLIs (just, gh, uv); best effort per package, never fatal
+if grep -qi "ID=debian\|ID=ubuntu" /etc/os-release 2>/dev/null; then
+    for pkg in just gh; do
+        sudo apt install -y "$pkg" || echo "Note: $pkg not available from apt on this release; install it manually."
+    done
+elif grep -qi "ID=fedora" /etc/os-release 2>/dev/null; then
+    for pkg in just gh uv; do
+        sudo dnf install -y "$pkg" || echo "Note: $pkg not available from dnf; install it manually."
+    done
+elif grep -qi "ID=alpine" /etc/os-release 2>/dev/null; then
+    for pkg in just github-cli uv; do
+        sudo apk add "$pkg" || echo "Note: $pkg not available from apk; install it manually."
+    done
+fi
+if ! command -v uv &>/dev/null && [ ! -x "$HOME/.local/bin/uv" ]; then
+    echo "Installing uv (Astral) into ~/.local/bin..."
+    curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh || echo "Note: uv install failed; see https://docs.astral.sh/uv/"
+fi
+
 # Install Golang if not already present
 if ! command -v go &>/dev/null && [ ! -x "/usr/local/go/bin/go" ]; then
     GOVERSION="$(curl -fsSL 'https://go.dev/VERSION?m=text' 2>/dev/null | head -n 1 || echo 'go1.24.1')"

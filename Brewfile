@@ -29,7 +29,6 @@ brew "tmux"
 # Modern Agentic, Python & VCS workflow (Mitchell Hashimoto / AI FDE stack)
 brew "uv"
 brew "just"
-brew "jj"
 brew "gh"
 
 # Cloud, Kubernetes & Security tools

@@ -101,7 +101,8 @@
   prompt = false
 
 [push]
-  default = matching
+  # 'simple' pushes only the current branch to its upstream (safe for agents)
+  default = simple
 
 [filter "media"]
   required = true
@@ -131,8 +132,9 @@
   trustExitCode = false
 
 [help]
-  # Automatically correct and execute mistyped commands
-  autocorrect = 1
+  # Suggest a correction for mistyped commands and ask before running it
+  # (never auto-execute guesses; agents also run git)
+  autocorrect = prompt
 
 [pull]
   rebase = true

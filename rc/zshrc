@@ -127,11 +127,6 @@ if command -v uv &> /dev/null; then
   eval "$(uv generate-shell-completion zsh 2>/dev/null)"
 fi
 
-# Jujutsu (jj) completion
-if command -v jj &> /dev/null; then
-  source <(COMPLETE=zsh jj 2>/dev/null)
-fi
-
 # just command runner completion
 if command -v just &> /dev/null; then
   eval "$(just --completions zsh 2>/dev/null)"

@@ -43,4 +43,16 @@ if [ "$(uname -s)" = "Darwin" ] && [ -f "$SCRIPT_DIR/rc/config/ghostty/config" ]
   create_link "$SCRIPT_DIR/rc/config/ghostty/config" "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
 fi
 
+# Remove dangling symlinks that point into this repo (configs removed from dotfiles, e.g. ~/.config/jj)
+for LINK in "$HOME"/.[!.]* "$HOME/.config"/*; do
+  if [ -L "$LINK" ] && [ ! -e "$LINK" ]; then
+    case "$(readlink "$LINK")" in
+      "$SCRIPT_DIR"/*|"$HOME/.dotfiles"/*)
+        echo "Removing stale link: $LINK"
+        rm "$LINK"
+        ;;
+    esac
+  fi
+done
+
 echo "Link setup complete."

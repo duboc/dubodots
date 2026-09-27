@@ -5,7 +5,7 @@ A modular, cross-platform collection of dotfiles, shell scripts, and terminal co
 ## Features & Design Principles
 
 * **Agentic Coding & `obra/superpowers` Ready**: Out-of-the-box integration with **Antigravity**, **Claude Code**, and **Gemini CLI**, pre-loaded with [`obra/superpowers`](https://github.com/obra/superpowers) skills (Socratic brainstorming, spec-first planning, RED-GREEN-REFACTOR TDD, subagent-driven development, systematic debugging, and isolated Git worktrees).
-* **Mitchell Hashimoto Terminal & Harness Workflow**: Incorporates Mitchell Hashimoto's Ghostty configuration (`desktop-notifications = false` to prevent background agent focus-stealing, fast split navigation), **Jujutsu (`jj`)** workflow (`tug`, `retrunk`), **Harness Engineering** (`harness_init`, `spec_new`, `Justfile`), and `uv` / `gh` triage helpers.
+* **Mitchell Hashimoto Terminal & Harness Workflow**: Incorporates Mitchell Hashimoto's Ghostty configuration (`desktop-notifications = false` to prevent background agent focus-stealing, fast split navigation), **Harness Engineering** (`harness_init`, `spec_new`, tiered `Justfile`), isolated Git worktrees for background agents, and `uv` / `gh` triage helpers.
 * **Cloud & AI FDE Toolkit**: Pre-configured with `kubectl`, `kubectx` (`kx`), `kubens` (`kn`), `k9s`, `stern`, `helm`, `jq`, `yq`, `grpcurl`, `sops`, `age`, interactive `fzf` Kubernetes & GCP selectors (`gcpinfo`, `gprojf`, `gctxf`, `klog`, `kexec`, `kpf`), and instant Vertex AI Gemini endpoint testing (`vertex_ping`).
 * **Fast Terminal Workflow**: Includes Powerlevel10k with instant prompt, `fzf` fuzzy finding, `ripgrep` (`rg`), `fd`, `bat`, `eza`, `atuin`, `htop`, `watch`, `direnv`, and lazy-loaded `nvm` for near-instant shell startup.
 * **Enterprise & Managed Environment Safe**: Preserves system-provided `/bin/zsh`, `/etc/zshrc`, `/usr/local/git`, and `/usr/local/go` precedence, disables external agent telemetry (`SUPERPOWERS_DISABLE_TELEMETRY=1`, `DISABLE_TELEMETRY=1`), and avoids storing plaintext credentials.
@@ -37,7 +37,7 @@ Each setup stage is modular and idempotent, so you can run individual scripts an
 | Script | Description |
 | :--- | :--- |
 | `./setup.sh` | Full end-to-end base setup for macOS or Linux |
-| `./setup_links.sh` | Creates/updates symlinks in `~`, `~/.config/` (Ghostty, Jujutsu, Git, htop) |
+| `./setup_links.sh` | Creates/updates symlinks in `~`, `~/.config/` (Ghostty, Git, htop) and removes stale links to configs no longer in the repo |
 | `./setup_agents.sh` | **Optional:** Installs/configures [`obra/superpowers`](https://github.com/obra/superpowers), Claude Code (`--claude`), and/or Antigravity (`--antigravity`) |
 | `./setup_zsh.sh` | Installs/updates Oh My Zsh, Powerlevel10k, and Zsh plugins |
 | `./setup_tmux.sh` | Installs/updates Tmux Plugin Manager (`tpm`) and Tmux plugins |
@@ -71,7 +71,7 @@ When enabled, `./setup_agents.sh` clones [`obra/superpowers`](https://github.com
 * **Antigravity (`--antigravity`)**: Installed as a plugin in `~/.gemini/config/plugins/superpowers` with `always_on` bootstrap rules in `~/.gemini/config/rules/superpowers.md` and `~/.gemini/config/rules/global-engineering.md`, plus `~/.gemini/skills/` and `~/.agents/skills/`.
 * **Claude Code (`--claude`)**: Symlinked into `~/.claude/skills/` with `~/.claude/CLAUDE.md` and privacy-hardened `~/.claude/settings.json` (and installs `claude-code` via Homebrew Cask on macOS if not present).
 
-### 2. Git Worktrees, Jujutsu (`jj`) & Harness Engineering
+### 2. Git Worktrees & Harness Engineering
 Inspired by Mitchell Hashimoto's *"My AI Adoption Journey"* (separate planning from execution, engineer the harness, run background agents in isolated worktrees without desktop notification interruptions):
 
 | Command / Alias | Usage | Description |
@@ -80,12 +80,20 @@ Inspired by Mitchell Hashimoto's *"My AI Adoption Journey"* (separate planning f
 | `wts` | `wts` | Interactive `fzf` worktree switcher with live `git status` + `git log` preview |
 | `wtrm` | `wtrm [worktree]` | Interactive `fzf` worktree remover + `git worktree prune` |
 | `wtlist` | `wtlist` | List active Git worktrees (`git worktree list`) |
-| `harness_init` | `harness_init` | Scaffold `AGENTS.md` (plus `CLAUDE.md` & `GEMINI.md` symlinks), `Justfile`, and `docs/plans/` in the current repo |
+| `harness_init` | `harness_init` | Scaffold `AGENTS.md` (plus `CLAUDE.md` & `GEMINI.md` symlinks), a tiered `Justfile` (`quick` / `test` / `lint` / `fmt` / `premerge`), and `docs/plans/` in the current repo |
 | `spec_new` | `spec_new <slug>` | Create a timestamped spec & TDD implementation plan in `docs/plans/YYYY-MM-DD-<slug>.md` |
 | `ghprs` / `ghissues` | `ghprs` / `ghissues` | Interactive `fzf` GitHub PR checkout and Issue triage browsers with live preview |
-| `js` / `jl` / `jd` / `jn` | Jujutsu (`jj`) | `jj st`, `jj log`, `jj desc`, `jj new` |
-| `jtug` / `jretrunk` | Jujutsu (`jj`) | Move closest bookmark to `@-` (`jj tug`) or rebase onto trunk (`jj retrunk`) |
 | `jx` / `jls` | `just` | Run `just` tasks or `just --list` |
+
+### 3. Agent Guardrails (global `AGENTS.md`)
+The global [`agents/AGENTS.md`](agents/AGENTS.md) encodes practices from Mitchell Hashimoto and other 2026 agentic-engineering write-ups:
+* **Run the fast test tier first** (`just quick`) and reproduce bugs before fixing them.
+* **Never reduce test coverage** to make a suite pass.
+* **Self-review before handoff**: re-read the diff, flag new dependencies, weakened tests, and out-of-scope changes.
+* **One worktree per concurrent agent**, never touch changes you did not make, and no history-destroying Git commands without approval.
+* **Land the plane**: record remaining work, run all gates, commit, and leave a handoff note; re-read the spec after context compaction.
+
+> **Why no Jujutsu (`jj`)?** jj was removed on purpose. The agent stack here (Claude Code worktree mode, `obra/superpowers`, and the `wta`/`wts`/`wtrm` helpers) is Git-worktree based, and jj's colocation, workspace, identity, and pager/editor behavior conflicted with it. Git worktrees plus small commits, Claude Code checkpoints (`/rewind`), and `git reflog` cover the recovery story.
 
 ---
 
@@ -186,9 +194,9 @@ dubodots/
 ├── completion/          # Shell completion scripts for Zsh & Bash (kubectx, kubens)
 ├── fonts/               # Monospaced Nerd Fonts (MesloLGS NF, Monaco NF, etc.)
 ├── rc/                  # Application runtime configs symlinked into $HOME (~/.zshrc, ~/.tmux.conf, etc.)
-│   └── config/          # Sub-configurations symlinked into ~/.config/ (ghostty, jj, git, htop)
+│   └── config/          # Sub-configurations symlinked into ~/.config/ (ghostty, git, htop)
 ├── shellconfig/         # Shared shell configuration modules for Zsh and Bash
-│   ├── agents.sh        # Agentic workflows (worktrees, jj, harness_init) & Cloud AI FDE helpers
+│   ├── agents.sh        # Agentic workflows (worktrees, harness_init, spec_new) & Cloud AI FDE helpers
 │   ├── aliases.sh       # Cross-platform Git, cloud, network, and navigation aliases
 │   ├── aliases_mac.sh   # macOS-specific aliases
 │   ├── exports.sh       # PATH, environment variables, and tool bindings

@@ -3,3 +3,11 @@
 *.tmproj
 *~
 *.swp*
+
+# Local environment & secrets (worktree helpers copy these around; never commit them)
+.env
+.env.*
+.envrc
+!.env.example
+!.env.sample
+!.env.template

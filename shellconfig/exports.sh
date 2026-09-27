@@ -44,7 +44,7 @@ fi
 [ -d "/usr/local/go/bin" ] && export PATH="/usr/local/go/bin:$PATH"
 [ -d "/usr/local/git/current/bin" ] && export PATH="/usr/local/git/current/bin:$PATH"
 
-export PATH="$HOME/.dotfiles/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.dotfiles/bin:$PATH"
 
 ## Golang path
 export GOPATH=$HOME/go

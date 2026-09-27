@@ -8,19 +8,8 @@ export DISABLE_TELEMETRY=1
 export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 
 # ------------------------------------------------------------------------------
-# 1. Jujutsu (jj) & Task Runner (just / uv) Shortcuts (Mitchell Hashimoto stack)
+# 1. Task Runner (just) Shortcuts
 # ------------------------------------------------------------------------------
-if command -v jj >/dev/null 2>&1; then
-    alias js="jj st"
-    alias jd="jj desc"
-    alias jn="jj new"
-    alias jp="jj git push"
-    alias jf="jj git fetch"
-    alias jl="jj log"
-    alias jtug="jj tug"
-    alias jretrunk="jj retrunk"
-fi
-
 if command -v just >/dev/null 2>&1; then
     alias jx="just"
     alias jls="just --list"
@@ -127,7 +116,7 @@ function spec_new() {
 
 ## 3. Verification Harness
 - Exact CLI commands to verify correctness (tests, linters, smoke checks):
-  - \`just test\`
+  - \`just quick\` (fast loop) and \`just premerge\` (before handoff)
 
 ## 4. Bite-Sized Tasks (TDD: Red -> Green -> Refactor)
 - [ ] Task 1: ...
@@ -146,7 +135,9 @@ function harness_init() {
 # Project Agent Guidelines (`AGENTS.md`)
 
 ## Commands & Verification Harness
-- **Run tests**: `just test`
+- **Fast feedback (run first, run often)**: `just quick`
+- **Full test suite**: `just test`
+- **Everything CI runs (before handoff)**: `just premerge`
 - **Lint / Typecheck**: `just lint`
 - **Format**: `just fmt`
 
@@ -173,9 +164,13 @@ set dotenv-load := true
 default:
     @just --list
 
-# Run test suite
+# Fastest useful signal (quiet, stop on first failure); run constantly
+quick:
+    @echo "Configure project quick test command in Justfile (e.g. uv run pytest -q -x --ff)"
+
+# Run full test suite (quiet output)
 test:
-    @echo "Configure project test command in Justfile"
+    @echo "Configure project test command in Justfile (e.g. uv run pytest -q)"
 
 # Run linters and type checks
 lint:
@@ -184,6 +179,9 @@ lint:
 # Format source files
 fmt:
     @echo "Configure project format command in Justfile"
+
+# Everything CI runs; must pass before handoff
+premerge: lint test
 EOF
         echo "Created Justfile"
     fi
