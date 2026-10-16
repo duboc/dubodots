@@ -85,9 +85,13 @@ if [ -f "$SCRIPT_DIR/setup_zsh.sh" ]; then
     bash "$SCRIPT_DIR/setup_zsh.sh"
 fi
 
-# Setup Tmux
+# Setup Tmux & Herdr
 if [ -f "$SCRIPT_DIR/setup_tmux.sh" ]; then
     bash "$SCRIPT_DIR/setup_tmux.sh"
+fi
+
+if [ -f "$SCRIPT_DIR/setup_herdr.sh" ]; then
+    bash "$SCRIPT_DIR/setup_herdr.sh"
 fi
 
 # Optional: Setup AI Coding Agents & obra/superpowers only when explicitly requested

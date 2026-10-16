@@ -37,9 +37,10 @@ Each setup stage is modular and idempotent, so you can run individual scripts an
 | Script | Description |
 | :--- | :--- |
 | `./setup.sh` | Full end-to-end base setup for macOS or Linux |
-| `./setup_links.sh` | Creates/updates symlinks in `~`, `~/.config/` (Ghostty, Git, htop) and removes stale links to configs no longer in the repo |
+| `./setup_links.sh` | Creates/updates symlinks in `~`, `~/.config/` (Ghostty, Herdr, Git, htop) and removes stale links to configs no longer in the repo |
 | `./setup_agents.sh` | **Optional:** Installs/configures [`obra/superpowers`](https://github.com/obra/superpowers), Claude Code (`--claude`), and/or Antigravity (`--antigravity`) |
 | `./setup_zsh.sh` | Installs/updates Oh My Zsh, Powerlevel10k, and Zsh plugins |
+| `./setup_herdr.sh` | Installs/updates [Herdr](https://herdr.dev/) agent runtime, links `~/.config/herdr/config.toml`, and wires agent session-restore integrations |
 | `./setup_tmux.sh` | Installs/updates Tmux Plugin Manager (`tpm`) and Tmux plugins |
 | `./setup_git_user.sh` | Configures your Git `user.name` and `user.email` in `~/.gitconfig.local` |
 | `./go_apps.sh` | Installs Go developer utilities (`2fa`, `benchstat`, `yaegi`) via `go install` |
@@ -158,12 +159,19 @@ Defined in [`shellconfig/funcs.sh`](shellconfig/funcs.sh) and [`shellconfig/alia
 
 ---
 
-## Ghostty & Tmux Configuration
+## Ghostty, Herdr & Tmux Configuration
 
 ### Ghostty ([`rc/config/ghostty/config`](rc/config/ghostty/config))
 * **Font**: `MesloLGS NF` (size 13) with Nerd Font glyphs for Powerlevel10k.
 * **Focus Protection**: `desktop-notifications = false` so background coding agents never interrupt deep work.
-* **Split Keybindings**: `Cmd+D` (split right), `Cmd+Shift+D` (split down), `Cmd+[` / `Cmd+]` (navigate splits), `Cmd+Shift+Enter` (zoom current split).
+* **Unified `Cmd` Shortcuts (Herdr, Tmux & Plain Ghostty)**: `Cmd+D` (split right), `Cmd+Shift+D` (split down), `Cmd+[` / `Cmd+]` (previous/next split), `Cmd+Opt+Arrow` (directional split focus), `Cmd+Shift+Enter` (zoom current split), `Cmd+T` (new tab), `Cmd+W` (close pane), `Cmd+Shift+[` / `]` (previous/next tab), `Cmd+1..9` (switch tab), `Cmd+N` (new workspace/window), `Cmd+Shift+W` (close workspace/window), `Cmd+\`` / `Cmd+Shift+\`` (next/previous workspace or window), `Cmd+G` (Go-To agent/workspace picker), and `Cmd+B` (toggle sidebar) send `Ctrl-a` prefix sequences inside Herdr/Tmux and automatically fall back to Ghostty's native AppleScript actions (`Ghostty.sdef`) when in a plain Zsh shell outside Herdr/Tmux.
+* **Outer Window Fallbacks**: `Opt+N` (new Ghostty window), `Opt+Shift+T` (new Ghostty tab), `Opt+Shift+W` (close Ghostty window), `Opt+D` / `Opt+Shift+D` (native Ghostty splits).
+
+### Herdr ([`rc/config/herdr/config.toml`](rc/config/herdr/config.toml))
+* **Theme & Focus**: `catppuccin` theme with `ui.toast.delivery = "herdr"` (in-app notifications only, preventing OS focus-stealing).
+* **Native Ghostty `Cmd` Parity**: Supports both `Ctrl-a` and `Ctrl-b` prefixes so every native Ghostty `Cmd` shortcut (`Cmd+D`, `Cmd+Shift+D`, `Cmd+[/]`, `Cmd+Shift+Enter`, `Cmd+T`, `Cmd+W`, `Cmd+Shift+[/]`, `Cmd+1..9`, `Cmd+N`, `Cmd+Shift+W`, `Cmd+\``, `Cmd+G`, `Cmd+B`) controls Herdr directly.
+* **Agent Session & Screen Persistence**: Enables `session.resume_agents_on_restore = true` and `experimental.pane_history = true` so Claude Code, Antigravity (`agy`), and Codex conversations automatically resume across daemon/host restarts.
+* **Aliases**: `hd` (`herdr`), `hda` (`herdr session attach`), `hdl` (`herdr session list`).
 
 ### Tmux ([`rc/tmux.conf`](rc/tmux.conf))
 * **Prefix**: `Ctrl-a` (as well as default `Ctrl-b`)
@@ -194,7 +202,7 @@ dubodots/
 ├── completion/          # Shell completion scripts for Zsh & Bash (kubectx, kubens)
 ├── fonts/               # Monospaced Nerd Fonts (MesloLGS NF, Monaco NF, etc.)
 ├── rc/                  # Application runtime configs symlinked into $HOME (~/.zshrc, ~/.tmux.conf, etc.)
-│   └── config/          # Sub-configurations symlinked into ~/.config/ (ghostty, git, htop)
+│   └── config/          # Sub-configurations symlinked into ~/.config/ (ghostty, herdr, git, htop)
 ├── shellconfig/         # Shared shell configuration modules for Zsh and Bash
 │   ├── agents.sh        # Agentic workflows (worktrees, harness_init, spec_new) & Cloud AI FDE helpers
 │   ├── aliases.sh       # Cross-platform Git, cloud, network, and navigation aliases
@@ -213,6 +221,7 @@ dubodots/
 ├── setup_links.sh       # Symlink generator for dotfiles, ~/.config, and Ghostty
 ├── setup_mac.sh         # macOS orchestration pipeline
 ├── setup_linux.sh       # Linux orchestration pipeline
+├── setup_herdr.sh       # Herdr agent runtime & integration setup
 ├── setup_tmux.sh        # Tmux & TPM plugin setup
 └── setup_zsh.sh         # Oh My Zsh, Powerlevel10k, and Zsh plugin installer
 ```

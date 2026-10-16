@@ -30,7 +30,20 @@ for FILE in "$SCRIPT_DIR/rc/"*; do
       for SUBITEM in "$FILE/"*; do
           [ -e "$SUBITEM" ] || continue
           subname="$(basename "$SUBITEM")"
-          create_link "$SUBITEM" "$HOME/.config/$subname"
+          if [ "$subname" = "herdr" ] && [ -d "$SUBITEM" ]; then
+              # Keep ~/.config/herdr as a real directory so runtime sockets/logs/sessions
+              # do not pollute the git repository; symlink only tracked config files inside it.
+              if [ -L "$HOME/.config/herdr" ]; then
+                  rm "$HOME/.config/herdr"
+              fi
+              mkdir -p "$HOME/.config/herdr"
+              for HERDR_ITEM in "$SUBITEM/"*; do
+                  [ -e "$HERDR_ITEM" ] || continue
+                  create_link "$HERDR_ITEM" "$HOME/.config/herdr/$(basename "$HERDR_ITEM")"
+              done
+          else
+              create_link "$SUBITEM" "$HOME/.config/$subname"
+          fi
       done
   else
       create_link "$FILE" "$HOME/.$filename"

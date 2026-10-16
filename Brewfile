@@ -25,6 +25,7 @@ brew "zsh-completions"
 brew "direnv"
 brew "atuin"
 brew "tmux"
+brew "herdr"
 
 # Modern Agentic, Python & VCS workflow (Mitchell Hashimoto / AI FDE stack)
 brew "uv"

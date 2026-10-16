@@ -1,0 +1,71 @@
+# Herdr Agent Runtime & Terminal Multiplexer Configuration
+# Designed for Ghostty (Native Cmd Shortcuts) + Catppuccin Mocha + Remote SSH/VM Workflows
+
+onboarding = false
+
+[server]
+headless_cols = 160
+headless_rows = 50
+
+[theme]
+name = "catppuccin"
+
+[terminal]
+shell_mode = "auto"
+new_cwd = "follow"
+kitty_graphics = true
+
+[session]
+resume_agents_on_restore = true
+startup_per_agent_delay_ms = 100
+
+[worktrees]
+directory = "~/.herdr/worktrees"
+
+[remote]
+manage_ssh_config = true
+
+[ui]
+show_agent_labels_on_pane_borders = true
+status_indicators = "symbols"
+window_title = "{hostname}: {workspace}"
+tab_bar_right = [
+  { type = "zoom" },
+  { type = "hostname" },
+  { type = "datetime", format = "%H:%M" },
+]
+tab_bar_right_separator = " · "
+
+# Keep notifications inside Herdr (matches Ghostty desktop-notifications = false)
+[ui.toast]
+delivery = "herdr"
+delay_seconds = 1
+
+# Dual prefix (Ctrl-A for Ghostty native Cmd shortcut forwarding + Ctrl-B default)
+[keys]
+prefix = ["ctrl+a", "ctrl+b"]
+new_tab = ["prefix+c", "cmd+t"]
+previous_tab = ["prefix+p", "cmd+shift+[", "ctrl+alt+["]
+next_tab = ["prefix+n", "cmd+shift+]", "ctrl+alt+]"]
+switch_tab = "prefix+1..9"
+split_vertical = ["prefix+|", "prefix+v", "cmd+d"]
+split_horizontal = ["prefix+minus", "cmd+shift+d"]
+cycle_pane_next = ["prefix+]", "prefix+tab", "cmd+]"]
+cycle_pane_previous = ["prefix+;", "prefix+shift+tab", "cmd+["]
+focus_pane_left = ["prefix+h", "ctrl+alt+h"]
+focus_pane_down = ["prefix+j", "ctrl+alt+j"]
+focus_pane_up = ["prefix+k", "ctrl+alt+k"]
+focus_pane_right = ["prefix+l", "ctrl+alt+l"]
+zoom = ["prefix+z", "cmd+shift+enter"]
+close_pane = ["prefix+x", "cmd+w"]
+new_workspace = ["prefix+shift+n", "cmd+n"]
+close_workspace = ["prefix+shift+d", "cmd+shift+w"]
+previous_workspace = ["prefix+(", "cmd+alt+[", "cmd+shift+`"]
+next_workspace = ["prefix+)", "cmd+alt+]", "cmd+`"]
+switch_workspace = "prefix+shift+1..9"
+goto = ["prefix+g", "cmd+g"]
+toggle_sidebar = ["prefix+b", "cmd+b"]
+reload_config = ["prefix+r", "prefix+shift+r"]
+
+[experimental]
+pane_history = true

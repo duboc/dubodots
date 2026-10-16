@@ -69,6 +69,10 @@ if [ "$UNINSTALL" = "1" ]; then
     if command -v agy >/dev/null 2>&1; then
         agy plugin uninstall superpowers 2>/dev/null || true
     fi
+    if command -v herdr >/dev/null 2>&1; then
+        herdr integration uninstall claude 2>/dev/null || true
+        herdr integration uninstall antigravity-cli 2>/dev/null || true
+    fi
     rm -rf "$SUPERPOWERS_DIR" \
            "$HOME/.agents/skills" \
            "$HOME/.gemini/skills" \
@@ -160,11 +164,10 @@ description: "Global engineering, harness, and Cloud AI FDE guidelines."
 @[global-agents](~/.dotfiles/agents/AGENTS.md)
 EOF
 
-    cat <<'EOF' > "$HOME/.gemini/GEMINI.md"
-@~/.local/share/superpowers/skills/using-superpowers/SKILL.md
-@~/.local/share/superpowers/skills/using-superpowers/references/gemini-tools.md
-@~/.dotfiles/agents/AGENTS.md
-EOF
+    rm -f "$HOME/.gemini/GEMINI.md"
+    if command -v herdr >/dev/null 2>&1; then
+        herdr integration install antigravity-cli 2>/dev/null || true
+    fi
     echo "Antigravity & Gemini CLI configuration complete."
 fi
 
@@ -179,8 +182,13 @@ if [ "$SETUP_CLAUDE" = "1" ]; then
     mkdir -p "$HOME/.claude/skills"
     ln -sfn "$SCRIPT_DIR/agents/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
-    if [ ! -f "$HOME/.claude/settings.json" ]; then
-        ln -sfn "$SCRIPT_DIR/agents/claude_settings.json" "$HOME/.claude/settings.json"
+    if [ -L "$HOME/.claude/settings.json" ] || [ ! -f "$HOME/.claude/settings.json" ]; then
+        rm -f "$HOME/.claude/settings.json"
+        cp "$SCRIPT_DIR/agents/claude_settings.json" "$HOME/.claude/settings.json"
+    fi
+
+    if command -v herdr >/dev/null 2>&1; then
+        herdr integration install claude 2>/dev/null || true
     fi
 
     for skill_path in "$SUPERPOWERS_DIR"/skills/*; do

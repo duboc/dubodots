@@ -132,6 +132,75 @@ if command -v just &> /dev/null; then
   eval "$(just --completions zsh 2>/dev/null)"
 fi
 
+# herdr agent runtime completion
+if command -v herdr &> /dev/null; then
+  eval "$(herdr completion zsh 2>/dev/null)"
+fi
+
+# ============================================================================
+# Ghostty + Herdr / Tmux Unified Shortcut Bridge (macOS)
+# ============================================================================
+# In Ghostty, Cmd shortcuts emit Ctrl-A (<prefix>) sequences so Herdr and Tmux
+# intercept them natively. When in a plain Ghostty shell (outside Herdr/Tmux),
+# catch those sequences in Zsh and forward them back to Ghostty's native UI.
+if [[ -o interactive && "$(uname -s)" == "Darwin" && -z "${HERDR_ENV:-}" && -z "${TMUX:-}" && ( "${TERM_PROGRAM:-}" == "ghostty" || -n "${GHOSTTY_RESOURCES_DIR:-}" ) ]]; then
+  _ghostty_perform_action() {
+    setopt localoptions nonotify nomonitor
+    osascript -e "tell application \"Ghostty\" to perform action \"$1\" on focused terminal of selected tab of front window" >/dev/null 2>&1 &!
+  }
+  _ghostty_next_window() {
+    setopt localoptions nonotify nomonitor
+    osascript -e 'tell application "Ghostty" to if (count of windows) > 1 then activate window (last window)' >/dev/null 2>&1 &!
+  }
+  _ghostty_prev_window() {
+    setopt localoptions nonotify nomonitor
+    osascript -e 'tell application "Ghostty" to if (count of windows) > 1 then activate window (window 2)' >/dev/null 2>&1 &!
+  }
+  zle -N _ghostty_next_window
+  zle -N _ghostty_prev_window
+  bindkey '^A)' _ghostty_next_window
+  bindkey '^A(' _ghostty_prev_window
+
+  () {
+    typeset -A _ghostty_keymap=(
+      "^Ac" "new_tab"
+      "^Ax" "close_surface"
+      "^Ap" "previous_tab"
+      "^An" "next_tab"
+      "^AN" "new_window"
+      "^AD" "close_window"
+      "^A|" "new_split:right"
+      "^A-" "new_split:down"
+      "^A]" "goto_split:next"
+      "^A;" "goto_split:previous"
+      "^Ah" "goto_split:left"
+      "^Aj" "goto_split:down"
+      "^Ak" "goto_split:up"
+      "^Al" "goto_split:right"
+      "^Az" "toggle_split_zoom"
+      "^Ag" "toggle_command_palette"
+      "^Ab" "toggle_command_palette"
+      "^A1" "goto_tab:1"
+      "^A2" "goto_tab:2"
+      "^A3" "goto_tab:3"
+      "^A4" "goto_tab:4"
+      "^A5" "goto_tab:5"
+      "^A6" "goto_tab:6"
+      "^A7" "goto_tab:7"
+      "^A8" "goto_tab:8"
+      "^A9" "last_tab"
+    )
+    local idx=0 key action widget
+    for key action in "${(@kv)_ghostty_keymap}"; do
+      ((idx++))
+      widget="_ghostty_action_${idx}"
+      eval "${widget}() { _ghostty_perform_action \"${action}\"; }"
+      zle -N "${widget}"
+      bindkey "${key}" "${widget}"
+    done
+  }
+fi
+
 # Google Cloud SDK path & completion (standalone or Homebrew)
 for gcloud_sdk_dir in "$HOME/google-cloud-sdk" "/opt/homebrew/share/google-cloud-sdk" "/usr/local/share/google-cloud-sdk"; do
   if [ -d "$gcloud_sdk_dir" ]; then

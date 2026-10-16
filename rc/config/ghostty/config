@@ -25,28 +25,66 @@ keybind = super+equal=increase_font_size:1
 keybind = super+minus=decrease_font_size:1
 keybind = super+zero=reset_font_size
 
-# Window, Tab & Config Management
+# Window & Config Management
 keybind = super+shift+comma=reload_config
 keybind = super+k=clear_screen
-keybind = super+n=new_window
-keybind = super+t=new_tab
-keybind = super+w=close_surface
-keybind = super+shift+w=close_window
-keybind = super+shift+left_bracket=previous_tab
-keybind = super+shift+right_bracket=next_tab
 
-# Fast Split Management (Human code on left, Agent / Logs on right)
-keybind = super+d=new_split:right
-keybind = super+shift+d=new_split:down
-keybind = super+right_bracket=goto_split:next
-keybind = super+left_bracket=goto_split:previous
-keybind = super+shift+enter=toggle_split_zoom
+# Native Cmd Shortcuts -> Drive Herdr & Tmux Directly (via Ctrl-A prefix)
+# Tabs & Workspaces
+keybind = super+t=text:\x01c
+keybind = super+w=text:\x01x
+keybind = super+shift+[=text:\x01p
+keybind = super+shift+]=text:\x01n
+keybind = super+shift+left_bracket=text:\x01p
+keybind = super+shift+right_bracket=text:\x01n
+keybind = super+n=text:\x01N
+keybind = super+shift+w=text:\x01D
+keybind = super+alt+[=text:\x01(
+keybind = super+alt+]=text:\x01)
+keybind = super+alt+left_bracket=text:\x01(
+keybind = super+alt+right_bracket=text:\x01)
+keybind = super+`=text:\x01)
+keybind = super+shift+`=text:\x01(
+keybind = super+grave_accent=text:\x01)
+keybind = super+shift+grave_accent=text:\x01(
+keybind = super+g=text:\x01g
+keybind = super+b=text:\x01b
+keybind = super+1=text:\x011
+keybind = super+2=text:\x012
+keybind = super+3=text:\x013
+keybind = super+4=text:\x014
+keybind = super+5=text:\x015
+keybind = super+6=text:\x016
+keybind = super+7=text:\x017
+keybind = super+8=text:\x018
+keybind = super+9=text:\x019
+keybind = super+digit_1=text:\x011
+keybind = super+digit_2=text:\x012
+keybind = super+digit_3=text:\x013
+keybind = super+digit_4=text:\x014
+keybind = super+digit_5=text:\x015
+keybind = super+digit_6=text:\x016
+keybind = super+digit_7=text:\x017
+keybind = super+digit_8=text:\x018
+keybind = super+digit_9=text:\x019
 
-# Remote Tmux Tab & Split Management (Option/Alt mirrors Cmd shortcuts -> sends Ctrl-A prefix to tmux)
-keybind = alt+t=text:\x01c
-keybind = alt+d=text:\x01|
-keybind = alt+shift+d=text:\x01-
-keybind = alt+w=text:\x01x
-keybind = alt+shift+left_bracket=text:\x01p
-keybind = alt+shift+right_bracket=text:\x01n
+# Splits & Pane Navigation (Human code on left, Agent / Logs on right)
+keybind = super+d=text:\x01|
+keybind = super+shift+d=text:\x01-
+keybind = super+]=text:\x01]
+keybind = super+[=text:\x01;
+keybind = super+right_bracket=text:\x01]
+keybind = super+left_bracket=text:\x01;
+keybind = super+alt+arrow_left=text:\x01h
+keybind = super+alt+arrow_down=text:\x01j
+keybind = super+alt+arrow_up=text:\x01k
+keybind = super+alt+arrow_right=text:\x01l
+keybind = super+shift+enter=text:\x01z
+
+# Outer Ghostty Window/Tab Fallbacks (Option/Alt)
+keybind = alt+n=new_window
+keybind = alt+shift+t=new_tab
+keybind = alt+shift+w=close_window
+keybind = alt+d=new_split:right
+keybind = alt+shift+d=new_split:down
 
