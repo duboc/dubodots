@@ -1,6 +1,15 @@
-# Global Agentic Engineering Guidelines (`AGENTS.md` / `CLAUDE.md` / `GEMINI.md`)
+# Global Agentic Guidelines (`AGENTS.md`)
 
-## Core Engineering Philosophy
+## Workspace Context Detection (Never Mix Contexts)
+
+1. **Local `AGENTS.md` Is the Single Source of Truth**:
+   - Every project or vault uses a single canonical `AGENTS.md` at its root (replacing legacy `GEMINI.md` / `CLAUDE.md` files).
+   - At the start of every session, check for `<workspace>/AGENTS.md` and follow its domain schema and rules first.
+2. **Code Repository vs. Knowledge Base / Obsidian Vault**:
+   - **Code / Software Repositories**: Apply all software engineering rules below (`spec.md` / `docs/plans/`, `just quick` / `pytest` / `go test`, RED-GREEN-REFACTOR TDD, `git worktree`).
+   - **Knowledge Base / Obsidian Vaults (e.g., `notas`)**: Do **NOT** apply software-repo ceremonies (`just test`, `docs/plans/`, `git worktree`, TDD). Follow the vault's local `AGENTS.md` (LLM Wiki pattern, `qmd query`, `index.md`, `log.md`, `20_ACTIVE/ → 30_ATLAS/<categoria>/`, and ADHD-friendly limits).
+
+## Core Engineering Philosophy (Software Repositories)
 
 1. **Plan Before Execution (`spec.md` / `docs/plans/`)**:
    - Do not "draw the owl" in a single blind coding pass for non-trivial features.
