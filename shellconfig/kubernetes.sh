@@ -88,6 +88,8 @@ kdesc() {
 }
 
 # Port-forward to a matching pod (e.g., kpf my-pod 8080:80)
+# Unalias first in case an upstream plugin (e.g., Oh My Zsh kubectl) aliased kpf
+unalias kpf 2>/dev/null || true
 kpf() {
     local pod="$1"
     local ports="${2:?Usage: kpf <pod-pattern> <local-port:remote-port>}"
